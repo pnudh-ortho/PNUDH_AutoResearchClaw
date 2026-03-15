@@ -1,0 +1,40 @@
+# ResearchClaw experiment sandbox — GPU-enabled, isolated environment.
+# Build: docker build -t researchclaw/experiment:latest researchclaw/docker/
+FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+
+# System packages: Python 3.11, build tools, common native deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3.11 python3.11-dev python3.11-venv python3-pip \
+        gcc g++ cmake make gfortran \
+        libopenblas-dev liblapack-dev \
+        git curl ca-certificates \
+    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
+    && python3 -m pip install --upgrade pip setuptools wheel \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Core ML/scientific Python stack
+RUN python3 -m pip install \
+        torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124 \
+    && python3 -m pip install \
+        numpy scipy scikit-learn pandas matplotlib seaborn \
+        tqdm gymnasium networkx torchdiffeq PyYAML
+
+# Pre-cache standard datasets for offline use
+RUN mkdir -p /opt/datasets && \
+    python3 -c "import torchvision; torchvision.datasets.CIFAR10(root='/opt/datasets', train=True, download=True); torchvision.datasets.CIFAR10(root='/opt/datasets', train=False, download=True)" && \
+    python3 -c "import torchvision; torchvision.datasets.FashionMNIST(root='/opt/datasets', train=True, download=True); torchvision.datasets.FashionMNIST(root='/opt/datasets', train=False, download=True)" && \
+    chmod -R a+r /opt/datasets
+
+# Non-root user for security
+RUN groupadd -r researcher && useradd -r -g researcher -m -s /bin/bash researcher
+WORKDIR /workspace
+RUN chown researcher:researcher /workspace
+
+USER researcher
+
+# Default: run a Python script passed as argument
+ENTRYPOINT ["python3", "-u"]
