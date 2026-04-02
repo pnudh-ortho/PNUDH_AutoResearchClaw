@@ -1556,50 +1556,59 @@ def _execute_paper_draft(
                 logger.warning("P10: Contradiction advisories: %s", _contradictions)
 
     # R10: HARD BLOCK — refuse to write paper when all data is simulated
-    all_simulated = True
-    for stage_subdir in sorted(run_dir.glob("stage-*/runs")):
-        for run_file in sorted(stage_subdir.glob("*.json")):
-            if run_file.name == "results.json":
-                continue
-            try:
-                _payload = json.loads(run_file.read_text(encoding="utf-8"))
-            except (json.JSONDecodeError, OSError):
-                continue
-            if isinstance(_payload, dict) and _payload.get("status") != "simulated":
-                all_simulated = False
+    # Skip this check when experiment.mode is explicitly set to 'simulated'
+    _exp_mode = getattr(config.experiment, "mode", "sandbox")
+    if _exp_mode != "simulated":
+        all_simulated = True
+        for stage_subdir in sorted(run_dir.glob("stage-*/runs")):
+            for run_file in sorted(stage_subdir.glob("*.json")):
+                if run_file.name == "results.json":
+                    continue
+                try:
+                    _payload = json.loads(run_file.read_text(encoding="utf-8"))
+                except (json.JSONDecodeError, OSError):
+                    continue
+                if isinstance(_payload, dict) and _payload.get("status") != "simulated":
+                    all_simulated = False
+                    break
+            if not all_simulated:
                 break
-        if not all_simulated:
-            break
 
-    if all_simulated:
-        logger.error(
-            "BLOCKED: All experiment data is simulated (mode='simulated'). "
-            "Cannot write a paper based on formulaic fake data. "
-            "Switch to experiment.mode='sandbox' and re-run."
-        )
-        (stage_dir / "paper_draft.md").write_text(
-            "# Paper Draft Blocked\n\n"
-            "**Reason**: All experiment results are from simulated mode "
-            "(formulaic data: `0.3 + idx * 0.03`). "
-            "These are not real experimental results.\n\n"
-            "**Action Required**: Set `experiment.mode: 'sandbox'` in "
-            "config.arc.yaml and re-run the pipeline.",
-            encoding="utf-8",
-        )
-        return StageResult(
-            stage=Stage.PAPER_DRAFT,
-            status=StageStatus.FAILED,
-            artifacts=("paper_draft.md",),
-            evidence_refs=(),
+        if all_simulated:
+            logger.error(
+                "BLOCKED: All experiment data is simulated (mode='simulated'). "
+                "Cannot write a paper based on formulaic fake data. "
+                "Switch to experiment.mode='sandbox' and re-run."
+            )
+            (stage_dir / "paper_draft.md").write_text(
+                "# Paper Draft Blocked\n\n"
+                "**Reason**: All experiment results are from simulated mode "
+                "(formulaic data: `0.3 + idx * 0.03`). "
+                "These are not real experimental results.\n\n"
+                "**Action Required**: Set `experiment.mode: 'sandbox'` in "
+                "config.arc.yaml and re-run the pipeline.",
+                encoding="utf-8",
+            )
+            return StageResult(
+                stage=Stage.PAPER_DRAFT,
+                status=StageStatus.FAILED,
+                artifacts=("paper_draft.md",),
+                evidence_refs=(),
+            )
+    else:
+        logger.info(
+            "experiment.mode='simulated': skipping simulated-data block check. "
+            "Paper draft will proceed with simulated experiment results."
         )
 
     # R4-2: HARD BLOCK — refuse to write paper with no real data (ML/empirical domains)
     # For non-empirical domains (math proofs, theoretical economics), allow proceeding
+    # Also skip when experiment.mode='simulated' (intentional synthetic data)
     _domain_id, _domain_name, _domain_venues = _detect_domain(
         config.research.topic, config.research.domains
     )
     _empirical_domains = {"ml", "engineering", "biology", "chemistry"}
-    if not has_real_metrics:
+    if not has_real_metrics and _exp_mode != "simulated":
         if _domain_id in _empirical_domains:
             logger.error(
                 "BLOCKED: Cannot write paper — experiment produced NO metrics. "

@@ -165,6 +165,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     resume = cast(bool, args.resume)
     skip_noncritical = cast(bool, args.skip_noncritical_stage)
     no_graceful_degradation = cast(bool, args.no_graceful_degradation)
+    skip_stages_arg = cast(str | None, args.skip_stages)
 
     kb_root_path = None
     config = RCConfig.load(config_path, check_paths=False)
@@ -268,6 +269,36 @@ def cmd_run(args: argparse.Namespace) -> int:
             from_stage = resumed
             print(f"Resuming from checkpoint: Stage {int(from_stage)}: {from_stage.name}")
 
+    # --- Resolve skip_stages ---
+    skip_stages_set: frozenset[Stage] | None = None
+    if skip_stages_arg:
+        resolved_skip: set[Stage] = set()
+        for token in skip_stages_arg.split(","):
+            token = token.strip()
+            if not token:
+                continue
+            if token.isdigit():
+                try:
+                    resolved_skip.add(Stage(int(token)))
+                except ValueError:
+                    print(
+                        f"Error: unknown stage number '{token}'.",
+                        file=sys.stderr,
+                    )
+                    return 1
+            else:
+                try:
+                    resolved_skip.add(Stage[token.upper()])
+                except KeyError:
+                    valid = ", ".join(s.name for s in Stage)
+                    print(
+                        f"Error: unknown stage name '{token}'. "
+                        f"Valid stages: {valid}",
+                        file=sys.stderr,
+                    )
+                    return 1
+        skip_stages_set = frozenset(resolved_skip)
+
     from researchclaw import __version__
     print(f"ResearchClaw v{__version__} — Starting pipeline")
     print(f"  Run ID:  {run_id}")
@@ -275,6 +306,9 @@ def cmd_run(args: argparse.Namespace) -> int:
     print(f"  Output:  {run_dir}")
     print(f"  Mode:    {config.project.mode}")
     print(f"  From:    Stage {int(from_stage)}: {from_stage.name}")
+    if skip_stages_set:
+        skipped_names = ", ".join(f"{int(s)}:{s.name}" for s in sorted(skip_stages_set))
+        print(f"  Skip:    {skipped_names}")
 
     # Hint: OpenCode beast mode
     exp_cfg = getattr(config, "experiment", None)
@@ -296,6 +330,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         stop_on_gate=stop_on_gate,
         skip_noncritical=skip_noncritical,
         kb_root=kb_root_path,
+        skip_stages=skip_stages_set,
     )
 
     done = sum(1 for r in results if r.status.value == "done")
@@ -939,6 +974,13 @@ def main(argv: list[str] | None = None) -> int:
     _ = run_p.add_argument(
         "--no-graceful-degradation", action="store_true",
         help="Disable graceful degradation: fail pipeline on quality gate failure"
+    )
+    _ = run_p.add_argument(
+        "--skip-stages",
+        help=(
+            "Comma-separated list of stage numbers or names to skip entirely "
+            "(e.g. '10,11,12,13,14,15' or 'CODE_GENERATION,RESOURCE_PLANNING')"
+        ),
     )
     val_p = sub.add_parser("validate", help="Validate config file")
     _ = val_p.add_argument(

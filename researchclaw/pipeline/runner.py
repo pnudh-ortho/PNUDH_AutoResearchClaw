@@ -13,6 +13,7 @@ from researchclaw.adapters import AdapterBundle
 from researchclaw.config import RCConfig
 from researchclaw.evolution import EvolutionStore, extract_lessons
 from researchclaw.knowledge.base import write_stage_to_kb
+from researchclaw.pipeline.contracts import CONTRACTS
 from researchclaw.pipeline.executor import StageResult, execute_stage
 from researchclaw.pipeline.stages import (
     DECISION_ROLLBACK,
@@ -28,6 +29,32 @@ def _utcnow_iso() -> str:
     from datetime import datetime, timezone
 
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def _create_skip_stubs(stage: Stage, run_dir: Path) -> None:
+    """Create placeholder files for every output_file declared in the stage's
+    contract so that downstream stages can find their required inputs even when
+    a stage is skipped via --skip-stages."""
+    contract = CONTRACTS.get(stage)
+    if not contract or not contract.output_files:
+        return
+    stage_dir = run_dir / f"stage-{int(stage):02d}"
+    stage_dir.mkdir(parents=True, exist_ok=True)
+    for fname in contract.output_files:
+        # Directory placeholders (e.g. "runs/", "cards/") — create the dir
+        if fname.endswith("/"):
+            (stage_dir / fname.rstrip("/")).mkdir(parents=True, exist_ok=True)
+            continue
+        dest = stage_dir / fname
+        if dest.exists():
+            continue
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(
+            f"# [skipped] Stage {int(stage)} ({stage.name}) was skipped via"
+            f" --skip-stages.\n# This stub was auto-generated so downstream"
+            f" stages can locate their required inputs.\n",
+            encoding="utf-8",
+        )
 
 
 def _should_start(stage: Stage, from_stage: Stage, started: bool) -> bool:
@@ -418,6 +445,7 @@ def execute_pipeline(
     stop_on_gate: bool = False,
     skip_noncritical: bool = False,
     kb_root: Path | None = None,
+    skip_stages: frozenset[Stage] | None = None,
 ) -> list[StageResult]:
     """Execute pipeline stages sequentially from `from_stage` and write summary."""
 
@@ -428,6 +456,14 @@ def execute_pipeline(
     for stage in STAGE_SEQUENCE:
         started = _should_start(stage, from_stage, started)
         if not started:
+            continue
+
+        if skip_stages and stage in skip_stages:
+            print(f"[{run_id}] Stage {int(stage):02d}/{total_stages} {stage.name} — skipped")
+            _create_skip_stubs(stage, run_dir)
+            results.append(
+                StageResult(stage=stage, status=StageStatus.DONE, artifacts=(), decision="skipped")
+            )
             continue
 
         stage_num = int(stage)
@@ -563,6 +599,7 @@ def execute_pipeline(
                     stop_on_gate=stop_on_gate,
                     skip_noncritical=skip_noncritical,
                     kb_root=kb_root,
+                    skip_stages=skip_stages,
                 )
                 results.extend(pivot_results)
                 # BUG-211: Promote best stage-14 after REFINE completes so
