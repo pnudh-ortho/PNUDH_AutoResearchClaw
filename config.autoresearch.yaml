@@ -1,0 +1,227 @@
+# ============================================================
+# AutoResearch Configuration
+# config.autoresearch.yaml
+#
+# 복사해서 각 프로젝트별 config로 사용하세요.
+# autoresearch new 시 --config 옵션으로 지정 가능합니다.
+#
+# cf. config_20260328.yaml (AutoResearchClaw — 자율 실험 파이프라인)
+#     이 파일은 AutoResearch — 연구자 주도 원고 작성 파이프라인에 맞게
+#     구조를 전면 재설계하였습니다.
+# ============================================================
+
+# ──────────────────────────────────────────────────────────────
+# [1] 프로젝트 기본 정보
+# ──────────────────────────────────────────────────────────────
+project:
+  name: "my-research-project"          # 세션 디렉토리 이름에 사용됨
+  mode: "checkpoint"                   # 항상 checkpoint — 완전자동(full-auto) 없음
+                                       # AutoResearch는 모든 주요 결정에 연구자 승인 필수
+
+# ──────────────────────────────────────────────────────────────
+# [2] 연구 정보 (REQUIRED)
+# ──────────────────────────────────────────────────────────────
+research:
+  topic: >
+    여기에 연구 주제를 입력하세요.
+    한 문단 이내로 배경·맥락·데이터 특성을 설명하면
+    Stage 2 Literature와 Stage 2-B Story Writer가 더 정확하게 작동합니다.
+
+  hypothesis: ""
+
+  study_type: "observational"
+
+  domains:
+    - "biomedicine"
+    # 추가 예시: "oncology", "cardiology", "neuroscience",
+    #            "orthopedics", "public-health", "clinical-trial"
+
+  journal_target: ""
+  # 목표 학술지 (선택). 지정 시 Section Writer가 해당 학술지의
+  # 스타일 가이드라인을 참고합니다.
+  # 예: "PLOS ONE", "Scientific Reports", "Journal of Clinical Medicine"
+
+# ──────────────────────────────────────────────────────────────
+# [3] 입력 파일 경로
+# ──────────────────────────────────────────────────────────────
+input:
+  # 데이터 파일 (CSV, Excel 등) — 절대경로 또는 sessions/ 기준 상대경로
+  data_files: []
+  # 예:
+  # data_files:
+  #   - "input/patient_data.csv"
+  #   - "input/lab_results.xlsx"
+
+  # 연구자가 직접 제공하는 참고문헌 PDF
+  reference_papers: []
+  # 예:
+  # reference_papers:
+  #   - "input/refs/kim2023.pdf"
+  #   - "input/refs/smith2022.pdf"
+
+# ──────────────────────────────────────────────────────────────
+# [4] 세션·워크스페이스 설정
+# ──────────────────────────────────────────────────────────────
+pipeline:
+  sessions_dir: "sessions"             # 세션 루트 디렉토리
+  session_id: ""                       # 비워두면 실행 시 자동생성
+                                       # 기존 세션 재개: "20260404-060000-abc123"
+
+# ──────────────────────────────────────────────────────────────
+# [5] Stage 1 — 데이터 분석 & 시각화
+# ──────────────────────────────────────────────────────────────
+stage1:
+  analysis:
+    language: "python"                 # python | r | both
+    python_path: "/home/hyeonjin/miniconda3/envs/claude/bin/python3"
+    r_path: ""                         # Rscript 경로. 비우면 PATH에서 탐색
+    timeout_sec: 120                   # 분석 코드 실행 타임아웃 (초)
+    # 사용 패키지 (python)
+    python_packages:
+      - pandas
+      - numpy
+      - scipy
+      - statsmodels
+      - pingouin
+    # 사용 패키지 (R)
+    r_packages:
+      - stats
+      - rstatix
+      - car
+
+  visualization:
+    language: "python"                 # python | r
+    dpi: 300                           # 최소 300 DPI (저널 요건)
+    figure_width_in: 6.5               # 기본: full-width (single: 3.5, 1.5col: 5.0)
+    colorblind_safe: true              # 색맹 안전 팔레트 강제
+    output_format:
+      - pdf                            # vector (제출용)
+      - png                            # raster (미리보기용)
+    timeout_sec: 180
+
+# ──────────────────────────────────────────────────────────────
+# [6] Stage 2 — 문헌 검색 & 원고 작성
+# ──────────────────────────────────────────────────────────────
+stage2:
+  literature:
+    databases:
+      - pubmed                         # 필수
+      - scholar                        # scholarly 패키지 필요 (pip install scholarly)
+    pubmed_max_results: 20
+    scholar_max_results: 10
+    date_restriction: ""               # 기본값: 제한 없음 (권장)
+                                       # 제한 예: "2015/01/01:2026/12/31"
+    include_preprints: false           # 세미날 논문인 경우만 true
+    pico_search: true                  # PICO 구조로 Boolean 쿼리 자동 생성
+
+  writing:
+    citation_style: "vancouver"        # vancouver | apa | harvard | nature
+    word_limits:
+      abstract: 250                    # 학술지 기본값 (재정의 가능)
+      methods: 800
+      results: 1000
+      discussion: 1200
+      introduction: 600
+      conclusion: 300
+    section_order:                     # 작성 순서 — 변경 금지 (pipeline design D-016)
+      - methods
+      - results
+      - discussion
+      - conclusion
+      - introduction
+      - abstract
+
+# ──────────────────────────────────────────────────────────────
+# [7] Stage 3 — 동료 리뷰
+# ──────────────────────────────────────────────────────────────
+stage3:
+  review:
+    # Reviewer A: 방법론·통계 엄밀성
+    # Reviewer B: 임상 적합성·중개연구 가치
+    # Reviewer C: 논문 작성 품질·논리 흐름
+    auto_synthesize: true              # 3개 리뷰 완료 시 자동 합성 (autoresearch run synthesis)
+    synthesis_conflict_detection: true # 리뷰어 간 상충 의견 자동 감지
+
+# ──────────────────────────────────────────────────────────────
+# [8] Stage 4 — 수정 & 교정
+# ──────────────────────────────────────────────────────────────
+stage4:
+  revision:
+    log_all_changes: true              # 모든 변경사항 change_log.md에 기록 (필수)
+    require_rebuttal_for_declined: true  # Decline 항목에 반박 사유 필수
+
+  proofreader:
+    auto_run: true                     # 수정 완료 후 autoresearch run proofread 자동 실행
+    checks:
+      terminology: true
+      abbreviations: true
+      figure_references: true
+      statistics_consistency: true
+      claim_language: true             # Abstract/Conclusion 과장 표현 감지
+
+# ──────────────────────────────────────────────────────────────
+# [9] 런타임 설정
+# ──────────────────────────────────────────────────────────────
+runtime:
+  timezone: "Asia/Seoul"
+  approval_timeout_hours: 72           # 체크포인트 대기 시간 (기본 72h — 연구자 일정 반영)
+                                       # cf. AutoResearchClaw: 1h (자동화 파이프라인)
+
+# ──────────────────────────────────────────────────────────────
+# [10] 알림
+# ──────────────────────────────────────────────────────────────
+notifications:
+  channel: "console"                   # console | slack | email
+  target: ""
+  on_checkpoint_reached: true          # 체크포인트 도달 시 알림
+  on_stage_complete: true
+  on_error: true
+
+# ──────────────────────────────────────────────────────────────
+# [11] 지식베이스 (선택)
+# ──────────────────────────────────────────────────────────────
+knowledge_base:
+  backend: "markdown"
+  root: "docs/kb"
+
+# ──────────────────────────────────────────────────────────────
+# [12] LLM 설정
+# ──────────────────────────────────────────────────────────────
+llm:
+  provider: "acp"
+  acp:
+    agent: "claude"
+    cwd: "."
+
+# ──────────────────────────────────────────────────────────────
+# [13] 보안 설정
+# ──────────────────────────────────────────────────────────────
+security:
+  require_checkpoint_approval: true    # 모든 체크포인트에서 연구자 승인 필수
+                                       # false 불가 — AutoResearch 핵심 원칙
+  allow_auto_proceed: false            # 자동 진행 금지
+  redact_sensitive_logs: false
+
+# ──────────────────────────────────────────────────────────────
+# [14] 출력 설정
+# ──────────────────────────────────────────────────────────────
+export:
+  format: "markdown"                   # markdown | latex (향후 지원 예정)
+  output_bundle: "final_output.md"     # sessions/{id}/final_output.md
+  include:
+    manuscript: true
+    analysis_code: true                # stage1/analysis/*.py (R)
+    figure_code: true                  # stage1/figures/*.py (R)
+    figure_captions: true
+    references_bib: true
+    change_log: true                   # stage4/change_log.md
+    proofread_report: true             # stage4/proofread_report.md
+
+# ──────────────────────────────────────────────────────────────
+# [15] AutoResearchClaw에서 제거된 섹션
+#      (이 파일에는 해당 없음)
+# ──────────────────────────────────────────────────────────────
+# experiment:    ← 없음. AutoResearch는 실험 설계·실행을 하지 않음
+#                  (CLAUDE.md D-001: no experiment generation, no science code)
+# openclaw_bridge: ← 없음. 스킬 기반 대화 파이프라인이므로 불필요
+# metaclaw_bridge: ← 없음.

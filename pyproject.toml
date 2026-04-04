@@ -1,7 +1,7 @@
 [project]
 name = "researchclaw"
-version = "0.3.1"
-description = "ResearchClaw — Autonomous Research Pipeline. Turn any research idea into a paper."
+version = "0.4.0"
+description = "ResearchClaw + AutoResearch — Autonomous research pipeline and manuscript writing assistant."
 requires-python = ">=3.11"
 dependencies = [
     "pyyaml>=6.0",
@@ -16,6 +16,31 @@ license = {text = "MIT"}
 anthropic = ["httpx>=0.24"]
 web = ["scholarly>=1.7", "crawl4ai>=0.2", "tavily-python>=0.3"]
 pdf = ["PyMuPDF>=1.23"]
+# AutoResearch Stage 1: data analysis
+analysis = [
+    "pandas>=2.0",
+    "scipy>=1.10",
+    "statsmodels>=0.14",
+    "pingouin>=0.5",
+]
+# AutoResearch Stage 1-B: visualization
+visualization = [
+    "matplotlib>=3.7",
+    "seaborn>=0.12",
+    "scienceplots>=2.1",
+]
+# Full AutoResearch install (analysis + visualization + literature search + PDF)
+autoresearch = [
+    "pandas>=2.0",
+    "scipy>=1.10",
+    "statsmodels>=0.14",
+    "pingouin>=0.5",
+    "matplotlib>=3.7",
+    "seaborn>=0.12",
+    "scienceplots>=2.1",
+    "scholarly>=1.7",
+    "PyMuPDF>=1.23",
+]
 all = [
     "httpx>=0.24",
     "scholarly>=1.7",
@@ -25,14 +50,20 @@ all = [
     "huggingface-hub>=0.20",
     "matplotlib>=3.7",
     "scipy>=1.10",
+    "pandas>=2.0",
+    "statsmodels>=0.14",
+    "pingouin>=0.5",
+    "seaborn>=0.12",
+    "scienceplots>=2.1",
 ]
 dev = ["pytest>=7.0", "pytest-asyncio>=0.21", "httpx>=0.24"]
 
 [project.scripts]
 researchclaw = "researchclaw.cli:main"
+autoresearch  = "autoresearch.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["researchclaw", "sibyl", "arc"]
+packages = ["researchclaw", "autoresearch", "sibyl", "arc"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "researchclaw/templates/styles" = "researchclaw/templates/styles"
