@@ -102,6 +102,10 @@ class WorkSpace:
     def stage4_dir(self) -> Path:
         return self.root / "stage4"
 
+    @property
+    def archive_dir(self) -> Path:
+        return self.root / "archive"
+
     # ── scaffold ─────────────────────────────────────────────────────────
 
     def scaffold(self) -> None:
@@ -115,12 +119,20 @@ class WorkSpace:
             self.manuscript_dir,
             self.stage3_dir,
             self.stage4_dir,
+            self.archive_dir,
         ]:
             d.mkdir(parents=True, exist_ok=True)
 
         # Write README placeholders
         (self.input_dir / "README.md").write_text(
             "# Input files\n\nPlace raw data (CSV, Excel) and reference PDFs here.\n",
+            encoding="utf-8",
+        )
+        (self.archive_dir / "README.md").write_text(
+            "# Archive\n\n"
+            "Drop any files here — data, PDFs, scripts, figures, notes.\n"
+            "Then ask Claude: \"archive 정리해줘\" and it will sort them\n"
+            "into the correct session folders automatically.\n",
             encoding="utf-8",
         )
         (self.stage4_dir / "change_log.md").write_text(
