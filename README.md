@@ -139,6 +139,7 @@ Each stage has a dedicated Claude Code skill. Load them by asking Claude:
 | 3 | `reviewer-a/b/c` | "peer review", "리뷰해줘" |
 | 4-A | `revision` | "수정 시작", "revise manuscript" |
 | 4-B | `proofreader` | "교정", "proofread" |
+| — | `organize` | "archive 정리해줘", "파일 정리" |
 
 ---
 
@@ -174,6 +175,7 @@ autoresearch export [SESSION_ID]
 ```
 sessions/<session-id>/
 ├── session.json          — pipeline state (checkpoints cleared, summaries)
+├── archive/              — drop files here; ask Claude "archive 정리해줘"
 ├── input/                — your data files and reference PDFs
 ├── stage1/
 │   ├── analysis/         — analysis_code.py, results.txt, interpretation.md
@@ -193,6 +195,17 @@ sessions/<session-id>/
 │   └── proofread_report.md
 └── final_output.md       — assembled export bundle
 ```
+
+### Archive Organizer
+
+Drop any files into `archive/` without worrying about naming or placement.  
+Then ask Claude:
+
+```
+archive 정리해줘
+```
+
+Claude inspects each file's extension and content, proposes a move plan, waits for your confirmation, then executes. Ambiguous files are collected and asked about in one batch before anything is moved.
 
 ---
 
