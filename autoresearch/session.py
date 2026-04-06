@@ -84,28 +84,41 @@ class ARSession:
 
     # ── stage-level summaries (for downstream context) ───────────────────
     # Filled by stage runners; consumed by later stages
-    analysis_summary: str = ""        # CP 1B output: 3-5 bullet summary for Story Writer
-    figure_list: list[dict] = field(default_factory=list)  # confirmed figures from CP 1C
-    literature_synthesis: str = ""    # CP 2A output: thematic synthesis
-    key_message: str = ""             # CP 2B output: key message sentence
-    narrative_arc: str = ""           # CP 2B output: arc description
-    # Section drafts: section_name → content
+
+    # Stage 1: intake
+    intake_report: str = ""             # CP 1 output: classification + entry point
+
+    # Stage 2: background knowledge
+    literature_synthesis: str = ""      # CP 2 output: thematic synthesis
+
+    # Stage 3: data analysis
+    analysis_summary: str = ""          # CP 3B output: 3-5 bullet summary for Stage 5
+    figure_list: list[dict] = field(default_factory=list)  # confirmed figures from CP 4
+
+    # Stage 5: paper outline
+    key_message: str = ""               # CP 5 output: key message sentence
+    narrative_arc: str = ""             # CP 5 output: arc description
+
+    # Stage 6: paper draft — section_name → content
     section_drafts: dict[str, str] = field(default_factory=dict)
-    # Review outputs
+
+    # Stage 7: peer review
     review_a: str = ""
     review_b: str = ""
     review_c: str = ""
-    review_synthesis: str = ""        # CP 3 auto-synthesis
-    # Revision
+    review_synthesis: str = ""          # CP 7 auto-synthesis
+
+    # Stage 8: revision
     change_log: list[dict] = field(default_factory=list)
     items_not_addressed: list[dict] = field(default_factory=list)
-    # Stage 4-B
+    response_letter: str = ""           # CP 8 output: reviewer response letter
+
+    # Stage 9: proofreading
     proofread_report: str = ""
 
     # ── intake metadata ──────────────────────────────────────────────────
-    # Set by the intake skill (Stage 0) so later sessions know their origin
-    source_input_dir: str = ""      # e.g. "input/obesity_treatment"
-    intake_entry_point: str = ""    # e.g. "Stage 1-A", "Stage 1-C", "Stage 2-A"
+    source_input_dir: str = ""          # e.g. "input/obesity_treatment"
+    intake_entry_point: str = ""        # e.g. "Stage 3", "Stage 4", "Stage 2"
 
     # ──────────────────────────────────────────────────────────────────────
     # Construction
@@ -292,32 +305,57 @@ class ARSession:
     # Context helpers (consumed by skills at runtime)
     # ──────────────────────────────────────────────────────────────────────
 
-    def stage1_context(self) -> str:
-        """Compact context block injected into Stage 2 skills."""
+    def stage3_context(self) -> str:
+        """Context injected into Stage 3 (data analysis) — provides literature grounding."""
         parts = [f"**Topic:** {self.topic}"]
+        if self.literature_synthesis:
+            parts.append(f"\n**Background Knowledge (CP 2):**\n{self.literature_synthesis[:800]}…")
+        return "\n".join(parts)
+
+    def stage5_context(self) -> str:
+        """Context injected into Stage 5 (paper outline) — full upstream summary."""
+        parts = [f"**Topic:** {self.topic}"]
+        if self.literature_synthesis:
+            parts.append(f"\n**Literature Synthesis (CP 2):**\n{self.literature_synthesis[:800]}…")
         if self.analysis_summary:
-            parts.append(f"\n**Analysis Summary (confirmed at CP 1B):**\n{self.analysis_summary}")
+            parts.append(f"\n**Analysis Summary (CP 3B):**\n{self.analysis_summary}")
         if self.figure_list:
             fig_lines = "\n".join(
                 f"  - Figure {i+1}: {f.get('type','?')} — {f.get('title','')}"
                 for i, f in enumerate(self.figure_list)
             )
-            parts.append(f"\n**Confirmed Figures (CP 1C):**\n{fig_lines}")
+            parts.append(f"\n**Confirmed Figures (CP 4):**\n{fig_lines}")
         return "\n".join(parts)
 
-    def stage2_context(self) -> str:
-        """Context block injected into Stage 3 skills."""
-        parts = [self.stage1_context()]
-        if self.literature_synthesis:
-            parts.append(f"\n**Literature Synthesis (CP 2A):**\n{self.literature_synthesis[:1000]}…")
+    def stage6_context(self) -> str:
+        """Context injected into Stage 6 (section writer) — all prior stage outputs."""
+        parts = [self.stage5_context()]
         if self.key_message:
-            parts.append(f"\n**Key Message (CP 2B):** {self.key_message}")
+            parts.append(f"\n**Key Message (CP 5):** {self.key_message}")
         if self.narrative_arc:
-            parts.append(f"\n**Narrative Arc (CP 2B):**\n{self.narrative_arc}")
+            parts.append(f"\n**Narrative Arc (CP 5):**\n{self.narrative_arc}")
         sections_done = list(self.section_drafts.keys())
         if sections_done:
             parts.append(f"\n**Sections confirmed:** {', '.join(sections_done)}")
         return "\n".join(parts)
+
+    # Keep legacy aliases for compatibility during transition
+    def stage1_context(self) -> str:
+        """Legacy alias → stage3_context (analysis summary + figures)."""
+        parts = [f"**Topic:** {self.topic}"]
+        if self.analysis_summary:
+            parts.append(f"\n**Analysis Summary (confirmed at CP 3B):**\n{self.analysis_summary}")
+        if self.figure_list:
+            fig_lines = "\n".join(
+                f"  - Figure {i+1}: {f.get('type','?')} — {f.get('title','')}"
+                for i, f in enumerate(self.figure_list)
+            )
+            parts.append(f"\n**Confirmed Figures (CP 4):**\n{fig_lines}")
+        return "\n".join(parts)
+
+    def stage2_context(self) -> str:
+        """Legacy alias → stage6_context."""
+        return self.stage6_context()
 
     def full_manuscript(self) -> str:
         """Assemble confirmed section drafts in canonical reading order."""
@@ -337,5 +375,5 @@ class ARSession:
         return (
             f"ARSession({self.session_id!r}, "
             f"topic={self.topic[:40]!r}, "
-            f"checkpoints={n_cleared}/13)"
+            f"checkpoints={n_cleared}/15)"
         )

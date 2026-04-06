@@ -1,5 +1,5 @@
 """
-Stage 3: Parallel Review + Auto-Synthesis
+Stage 7: Parallel Peer Review + Auto-Synthesis
 
 Three reviewers run independently and simultaneously on the completed draft.
 Each evaluates only their designated domain; they do not communicate.
@@ -12,13 +12,13 @@ After all three reviews exist, auto-synthesis:
   1. Aggregates comments by manuscript section
   2. Surfaces conflicts between reviewers
   3. Prioritizes: Major > Minor > Optional
-  4. Produces unified revision checklist               → CP 3
+  4. Produces unified revision checklist               → CP 7
 
 This module provides:
   - run_all_reviews()       run all three reviewers sequentially (or collect existing)
   - parse_review_sections() extract Major/Minor/Optional/Strengths from raw review text
   - synthesize_reviews()    combine three parsed reviews into a unified checklist
-  - format_cp3_synthesis()  format the CP 3 output for the researcher
+  - format_cp7_synthesis()  format the CP 7 output for the researcher
   - save_reviews_to_session() persist all review artifacts
 """
 
@@ -235,7 +235,7 @@ def synthesize_reviews(
 # Checkpoint 3: synthesis formatting
 # ──────────────────────────────────────────────────────────────────────────────
 
-def format_cp3_synthesis(synthesis: dict) -> str:
+def format_cp7_synthesis(synthesis: dict) -> str:
     """
     Format the unified review synthesis for CP 3.
     The researcher sees this instead of three raw review documents.
@@ -251,7 +251,7 @@ def format_cp3_synthesis(synthesis: dict) -> str:
     optional = [i for i in checklist if i["severity"] == "OPTIONAL"]
 
     lines = [
-        "## Review Synthesis — Stage 3",
+        "## Review Synthesis — Stage 7",
         "",
         "Three independent reviewers have evaluated the manuscript.",
         "This synthesis aggregates their findings; you do NOT need to read the raw reviews.",
@@ -317,7 +317,7 @@ def format_cp3_synthesis(synthesis: dict) -> str:
 
     lines += [
         "---",
-        "✓ **CHECKPOINT 3** — Revision scope decided?",
+        "✓ **CHECKPOINT 7** — Revision scope decided?",
         "",
         "For each item, decide:",
         "  `[ADDRESS: R{ID}]` — will fix this",
@@ -377,7 +377,7 @@ def save_reviews_to_session(
     review_c_text: str = "",
     synthesis_text: str = "",
 ) -> None:
-    """Persist Stage 3 review artifacts."""
+    """Persist Stage 7 review artifacts."""
     if review_a_text:
         ws.save_review("a", review_a_text)
         session.review_a = review_a_text
@@ -413,7 +413,12 @@ def auto_synthesize_if_ready(session: "ARSession", ws: "WorkSpace") -> str | Non
     parsed_c = parse_review("C", review_c_text)
 
     synthesis_dict = synthesize_reviews(parsed_a, parsed_b, parsed_c)
-    synthesis_text = format_cp3_synthesis(synthesis_dict)
+    synthesis_text = format_cp7_synthesis(synthesis_dict)
 
     save_reviews_to_session(session, ws, synthesis_text=synthesis_text)
     return synthesis_text
+
+
+def format_cp3_synthesis(synthesis: dict) -> str:
+    """Legacy alias for format_cp7_synthesis."""
+    return format_cp7_synthesis(synthesis)

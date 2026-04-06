@@ -4,20 +4,20 @@ description: >
   Write one manuscript section at a time following the confirmed narrative arc.
   Produces publication-quality scientific prose for biomedical papers.
   Enforces cross-section consistency, word count targets, and mandatory statements.
-  Use after Story Writer (CP 2B) is cleared. Writing order:
+  Use after Story Writer (CP 5) is cleared. Writing order:
   Methods → Results → Discussion → Conclusion → Introduction → Abstract.
-  Triggers on: "write [section]", "draft [section]", "Stage 2-C",
-  or when CP 2B is cleared and the next section is specified.
+  Triggers on: "write [section]", "draft [section]", "Stage 6",
+  or when CP 5 is cleared and the next section is specified.
 metadata:
   category: writing
-  trigger-keywords: "write,draft,section,methods,results,discussion,conclusion,introduction,abstract,manuscript,Stage 2-C,prose"
-  applicable-stages: "2"
+  trigger-keywords: "write,draft,section,methods,results,discussion,conclusion,introduction,abstract,manuscript,Stage 6,prose"
+  applicable-stages: "6"
   priority: "2"
   version: "2.0"
   author: autoresearch
 ---
 
-# Section Writer — Stage 2-C
+# Section Writer — Stage 6
 
 **Write only the section you are called to write. Do not draft ahead.
 Every factual claim must be traceable to this study's data, confirmed literature, or
@@ -27,11 +27,11 @@ explicitly labeled as interpretation. No padding. Every sentence earns its place
 
 ## Context to Load Before Starting Each Section
 
-1. Run `autoresearch status` — confirm CP 2B is cleared; note which section is next.
-2. Read `sessions/[id]/stage2/story/outline.md` — the confirmed section outline.
-3. Read `sessions/[id]/stage1/analysis/interpretation.md` — for exact statistics.
-4. Read `sessions/[id]/stage1/figures/captions.md` — for exact figure references.
-5. Read `sessions/[id]/stage2/literature/synthesis.md` — for citation support.
+1. Run `autoresearch status` — confirm CP 5 is cleared; note which section is next.
+2. Read `sessions/[id]/stage5/outline.md` — the confirmed section outline.
+3. Read `sessions/[id]/stage3/interpretation.md` — for exact statistics.
+4. Read `sessions/[id]/stage4/captions.md` — for exact figure references.
+5. Read `sessions/[id]/stage2/synthesis.md` — for citation support.
 6. **Read all previously approved sections** — extract consistency anchors (Step 1 below).
 
 ---
@@ -68,7 +68,7 @@ For the first section (Methods): extract anchors from the confirmed figures and 
 2. **Participants**: inclusion criteria, exclusion criteria, recruitment setting and procedure, total enrolled
 3. **[Primary intervention or exposure]**: describe in sufficient technical detail for replication
 4. **Measurements/outcomes**: define primary outcome first, then secondary outcomes; specify measurement units, timing, and instruments
-5. **Statistical analysis**: list every approved test from CP 1A by name; state software and version; state multiple comparisons correction method; state significance threshold (α = .05 unless otherwise justified)
+5. **Statistical analysis**: list every approved test from CP 3A by name; state software and version; state multiple comparisons correction method; state significance threshold (α = .05 unless otherwise justified)
 6. **Ethics statement**: IRB/ethics committee name, approval number, declaration of Helsinki compliance, consent procedure. If researcher has not provided this information, insert `[ETHICS STATEMENT REQUIRED]` and flag.
 
 **Do NOT include results in Methods.**
@@ -117,7 +117,7 @@ Incorrect: "Biomarker Z levels are shown in Figure 1A." (uninformative — state
 
 **Paragraphs 2–3 — Literature context:**
 - Confirm/contradict/extend: "Consistent with Smith et al. [1]..." / "In contrast to Jones et al. [2]..."
-- Reference the synthesis from Stage 2-A — cite papers by number
+- Reference the synthesis from Stage 2 — cite papers by number
 - If contradicting prior work: explain the discrepancy (different population, follow-up, measurement)
 
 **Paragraph 4 — Mechanistic interpretation:**
@@ -209,11 +209,11 @@ Written only after all other five sections are confirmed.
 Notes for Researcher:
 - Claims added beyond the outline: [list each, or "None"]
 - Citations added beyond the confirmed literature: [list each, or "None"]  
-- Statistics used: [confirm they match Stage 1-B output exactly, or note discrepancy]
+- Statistics used: [confirm they match Stage 4 output exactly, or note discrepancy]
 - Flags requiring researcher attention: [list, or "None"]
 
 ---
-✓ CHECKPOINT 2C-[N] — [Section Name] complete ([word count] words)
+✓ CHECKPOINT 6-[N] — [Section Name] complete ([word count] words)
 Proceed to [next section]?  [OK] / [REVISE: ...] / [REDIRECT: ...]
 ```
 
@@ -223,7 +223,7 @@ Proceed to [next section]?  [OK] / [REVISE: ...] / [REDIRECT: ...]
 
 - [ ] Consistency anchors match all previously approved sections
 - [ ] All assigned figures cited in text before they appear
-- [ ] Statistics in text match Stage 1-B report exactly (same values, same format)
+- [ ] Statistics in text match Stage 4 report exactly (same values, same format)
 - [ ] No results in Methods; no interpretation in Results; no new results in Discussion
 - [ ] All abbreviations defined on first use within this section
 - [ ] Claims proportional to effect sizes (pilot study language for small n)

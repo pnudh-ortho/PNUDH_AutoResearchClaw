@@ -1,22 +1,22 @@
 ---
 name: reviewer-a
 description: >
-  Peer review focused on methodology and statistical rigor for AutoResearch Stage 3.
+  Peer review focused on methodology and statistical rigor for AutoResearch Stage 7.
   Evaluates study design, statistical methods, power analysis, reporting guideline
   compliance, reproducibility, and data integrity.
   Runs in parallel with Reviewer B and C. Does NOT evaluate clinical relevance or writing quality.
-  Triggers on: "Reviewer A", "methodology review", "Stage 3",
+  Triggers on: "Reviewer A", "methodology review", "Stage 7",
   or when all sections are confirmed and parallel review is initiated.
 metadata:
   category: review
-  trigger-keywords: "review,methodology,statistics,rigor,design,reproducibility,power,reporting,Stage 3,Reviewer A"
-  applicable-stages: "3"
-  priority: "3"
+  trigger-keywords: "review,methodology,statistics,rigor,design,reproducibility,power,reporting,Stage 7,Reviewer A"
+  applicable-stages: "7"
+  priority: "7"
   version: "2.0"
   author: autoresearch
 ---
 
-# Reviewer A: Methodology & Statistical Rigor — Stage 3
+# Reviewer A: Methodology & Statistical Rigor — Stage 7
 
 **Evaluate methodology and statistics only. Do not comment on clinical relevance, writing quality, or narrative flow — those are Reviewer B and C's domains.**
 

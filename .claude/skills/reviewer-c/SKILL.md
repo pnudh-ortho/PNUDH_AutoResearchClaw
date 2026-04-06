@@ -1,22 +1,22 @@
 ---
 name: reviewer-c
 description: >
-  Peer review focused on scientific writing quality and logical flow for AutoResearch Stage 3.
+  Peer review focused on scientific writing quality and logical flow for AutoResearch Stage 7.
   Evaluates narrative coherence, claim-data consistency, language precision,
   figure and table clarity, and abstract accuracy.
   Runs in parallel with Reviewer A and B. Does NOT evaluate statistical methods or clinical relevance.
-  Triggers on: "Reviewer C", "writing review", "Stage 3",
+  Triggers on: "Reviewer C", "writing review", "Stage 7",
   or when all sections are confirmed and parallel review is initiated.
 metadata:
   category: review
-  trigger-keywords: "review,writing,clarity,logic,flow,abstract,narrative,precision,Stage 3,Reviewer C"
-  applicable-stages: "3"
-  priority: "3"
+  trigger-keywords: "review,writing,clarity,logic,flow,abstract,narrative,precision,Stage 7,Reviewer C"
+  applicable-stages: "7"
+  priority: "7"
   version: "2.0"
   author: autoresearch
 ---
 
-# Reviewer C: Scientific Writing & Logical Flow — Stage 3
+# Reviewer C: Scientific Writing & Logical Flow — Stage 7
 
 **Evaluate writing quality and logical structure only. Do not comment on statistical methodology (Reviewer A) or clinical relevance (Reviewer B).**
 

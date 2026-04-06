@@ -1,11 +1,12 @@
 """
-Stage 1-B: Visualization
+Stage 4: Visualization
 
 Responsibilities:
-  1. Reason from confirmed analysis to propose figure types        → CP 1C
-  2. Generate annotated Python/R code for each approved figure
-  3. Execute figure scripts, capture rendered outputs
-  4. Draft figure captions in the standard format
+  1. Reference Stage 2 synthesis for standard figure types in this research area
+  2. Reason from confirmed Stage 3 analysis to propose figure types  → CP 4
+  3. Generate annotated Python/R code for each approved figure
+  4. Execute figure scripts, capture rendered outputs
+  5. Draft figure captions in the standard format
 
 This module provides:
   - run_figure_script()   execute a figure script, capture output/errors
@@ -155,7 +156,7 @@ def render_all_figures(ws: "WorkSpace", data_dir: Path) -> list[FigureRunResult]
 # Checkpoint 1C: figure plan proposal
 # ──────────────────────────────────────────────────────────────────────────────
 
-def format_cp1c_proposal(
+def format_cp4_proposal(
     analysis_summary: str,
     figure_proposals: list[dict],
 ) -> str:
@@ -209,7 +210,7 @@ def format_cp1c_proposal(
         CODE_PRINCIPLES,
         "",
         "---",
-        "✓ **CHECKPOINT 1C** — Approve figure types & layout?",
+        "✓ **CHECKPOINT 4** — Approve figure types & layout?",
         "For each figure: `[OK A]` / `[OK B]` / `[DIFFERENT TYPE: ...]`",
         "When all confirmed: `[ALL OK]` → code generation begins.",
     ]
@@ -254,6 +255,11 @@ def format_captions_block(captions: list[str]) -> str:
 # Session integration
 # ──────────────────────────────────────────────────────────────────────────────
 
+def format_cp1c_proposal(analysis_summary: str, figure_proposals: list[dict]) -> str:
+    """Legacy alias for format_cp4_proposal."""
+    return format_cp4_proposal(analysis_summary, figure_proposals)
+
+
 def save_figures_to_session(
     session: "ARSession",
     ws: "WorkSpace",
@@ -263,7 +269,7 @@ def save_figures_to_session(
     captions_text: str = "",
 ) -> None:
     """
-    Persist Stage 1-B artifacts after CP 1C is cleared.
+    Persist Stage 4 artifacts after CP 4 is cleared.
 
     confirmed_figures: list of dicts like
         [{"index": 1, "type": "KM curve", "title": "Overall survival", "library": "lifelines"}, ...]

@@ -1,5 +1,5 @@
 """
-Stage 4-A: Revision Agent
+Stage 8: Revision Agent
 
 Executes confirmed checklist items ONLY.
 Every change is logged (what, where, why, cascade effects).
@@ -212,7 +212,7 @@ def save_revision_to_session(
     change_records: list[ChangeRecord] | None = None,
     declined_items: list[ChecklistItem] | None = None,
 ) -> None:
-    """Persist Stage 4-A artifacts."""
+    """Persist Stage 8 artifacts."""
     if revised_manuscript:
         ws.save_revised_manuscript(revised_manuscript)
 

@@ -1,22 +1,22 @@
 ---
 name: reviewer-b
 description: >
-  Peer review focused on clinical relevance and translational value for AutoResearch Stage 3.
+  Peer review focused on clinical relevance and translational value for AutoResearch Stage 7.
   Evaluates patient impact, generalizability, clinical vs. statistical significance,
   and translational pathway. Runs in parallel with Reviewer A and C.
   Does NOT evaluate statistical methods or writing quality.
-  Triggers on: "Reviewer B", "clinical review", "Stage 3",
+  Triggers on: "Reviewer B", "clinical review", "Stage 7",
   or when all sections are confirmed and parallel review is initiated.
 metadata:
   category: review
-  trigger-keywords: "review,clinical,relevance,translation,patient,impact,generalizability,Stage 3,Reviewer B"
-  applicable-stages: "3"
-  priority: "3"
+  trigger-keywords: "review,clinical,relevance,translation,patient,impact,generalizability,Stage 7,Reviewer B"
+  applicable-stages: "7"
+  priority: "7"
   version: "2.0"
   author: autoresearch
 ---
 
-# Reviewer B: Clinical Relevance & Translational Value — Stage 3
+# Reviewer B: Clinical Relevance & Translational Value — Stage 7
 
 **Evaluate clinical relevance and translation only. Do not comment on statistical methods (Reviewer A) or writing quality (Reviewer C).**
 

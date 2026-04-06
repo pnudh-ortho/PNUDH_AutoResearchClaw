@@ -4,19 +4,19 @@ description: >
   Design the narrative architecture of a biomedical paper before any prose is written.
   Produces a key message, narrative arc, section-by-section outline, pre-identified
   limitations, and supplementary materials plan. Does NOT write manuscript prose.
-  Use after CP 2A (literature) is confirmed.
-  Triggers on: "story", "narrative", "outline", "key message", "Stage 2-B",
-  or when CP 2A has been cleared.
+  Use after CP 2 (literature) is confirmed.
+  Triggers on: "story", "narrative", "outline", "key message", "Stage 5",
+  or when CP 2 has been cleared.
 metadata:
   category: writing
-  trigger-keywords: "story,narrative,outline,key message,arc,structure,blueprint,Stage 2-B,plan,design"
-  applicable-stages: "2"
+  trigger-keywords: "story,narrative,outline,key message,arc,structure,blueprint,Stage 5,plan,design"
+  applicable-stages: "5"
   priority: "2"
   version: "2.0"
   author: autoresearch
 ---
 
-# Story Writer — Stage 2-B
+# Paper Outline — Stage 5
 
 **Design the blueprint before a single word of prose is written.
 Every architectural decision must be traceable to confirmed data.
@@ -26,11 +26,11 @@ Never overclaim. Never manufacture a story the data cannot sustain.**
 
 ## Context to Load Before Starting
 
-1. Run `autoresearch status` — confirm CP 2A is cleared.
-2. Read `sessions/[id]/stage1/analysis/interpretation.md` — confirmed statistical findings.
-3. Read `sessions/[id]/stage1/figures/figure_plan.md` — confirmed figure list and types.
-4. Read `sessions/[id]/stage2/literature/synthesis.md` — confirmed literature synthesis.
-5. Review the "Summary for Story Writer" table from Stage 1-B (finding strength ratings).
+1. Run `autoresearch status` — confirm CP 4 (Visualization) is cleared.
+2. Read `sessions/[id]/stage3/interpretation.md` — confirmed statistical findings.
+3. Read `sessions/[id]/stage4/figure_plan.md` — confirmed figure list and types.
+4. Read `sessions/[id]/stage2/synthesis.md` — confirmed literature synthesis.
+5. Review the "Summary for Paper Outline" table from Stage 3 (finding strength ratings).
 6. Note the target journal from config.autoresearch.yaml if specified.
 
 ---
@@ -76,7 +76,7 @@ Match claim language to study strength:
 
 ### 1.4 What to Do If Data Cannot Support a Strong Key Message
 
-State this explicitly at CP 2B — do not manufacture a message the data cannot sustain.
+State this explicitly at CP 5 — do not manufacture a message the data cannot sustain.
 Options:
 - Reframe as exploratory: "This study generates hypotheses for future investigation..."
 - Emphasize methodological contribution: "This study validates [method] in [population]..."
@@ -98,8 +98,8 @@ Map how each section contributes to the key message. Every section must have a c
 ### Methods Arc
 - **Study design**: state design type (RCT, cohort, case-control, cross-sectional) and justify
 - **Population**: inclusion/exclusion criteria; representativeness
-- **Key methodological choices**: decisions that affect interpretation (must reference CP 1A plan)
-- **Statistical approach**: matches exactly what was approved at CP 1A (test names, correction strategy)
+- **Key methodological choices**: decisions that affect interpretation (must reference CP 3A plan)
+- **Statistical approach**: matches exactly what was approved at CP 3A (test names, correction strategy)
 - **Ethics and approval**: IRB/ethics committee statement (flag if researcher has not provided)
 
 ### Results Arc
@@ -196,7 +196,7 @@ For each proposed supplementary item, state: what it contains and why it's suppl
 
 ---
 
-### ✓ CHECKPOINT 2B
+### ✓ CHECKPOINT 5
 
 Present:
 1. Key message sentence with evidence calibration justification
@@ -206,7 +206,7 @@ Present:
 5. Supplementary materials plan (or "None required")
 
 ```
-## Story Architecture — CP 2B
+## Story Architecture — CP 5
 
 ### Key Message
 [One sentence]
@@ -232,7 +232,7 @@ Abstract:      [written last — will synthesize confirmed sections]
 [List or "None required"]
 
 ---
-✓ CHECKPOINT 2B — Approve narrative architecture?
+✓ CHECKPOINT 5 — Approve narrative architecture?
 [OK] / [REVISE: ...] / [REDIRECT: ...]
 ```
 
@@ -259,7 +259,7 @@ Abstract:      [written last — will synthesize confirmed sections]
 1. **NEVER start writing prose** — outline and bullet points only
 2. **NEVER place a figure in a section where it doesn't belong** (no Results figures in Introduction)
 3. **NEVER overclaim** — if data is from a pilot study, the arc must reflect exploratory framing
-4. **NEVER leave a story gap unacknowledged** — flag every weak point at CP 2B
+4. **NEVER leave a story gap unacknowledged** — flag every weak point at CP 5
 5. **NEVER design an arc that contradicts Stage 1 statistical interpretation**
 6. **"Further research is needed" is not a limitation** — require a specific, mechanistic limitation
 7. **NEVER derive a key message that cannot be found in the actual data**

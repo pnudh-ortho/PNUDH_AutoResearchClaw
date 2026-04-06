@@ -2,21 +2,21 @@
 name: revision
 description: >
   Execute manuscript revision based on a confirmed review synthesis checklist.
-  Makes only the changes the researcher approved at CP 3. Logs every change with location,
+  Makes only the changes the researcher approved at CP 7. Logs every change with location,
   what changed, and cascade effects. Generates a reviewer response letter after revision.
-  Use after CP 3 (researcher has confirmed revision scope).
-  Triggers on: "revise", "revision", "address comments", "Stage 4-A",
-  or when CP 3 has been cleared with a revision scope decision.
+  Use after CP 7 (researcher has confirmed revision scope).
+  Triggers on: "revise", "revision", "address comments", "Stage 8",
+  or when CP 7 has been cleared with a revision scope decision.
 metadata:
   category: revision
-  trigger-keywords: "revise,revision,address,comments,checklist,Stage 4,Stage 4-A,response letter,rebuttal"
-  applicable-stages: "4"
-  priority: "4"
+  trigger-keywords: "revise,revision,address,comments,checklist,Stage 8,response letter,rebuttal"
+  applicable-stages: "8"
+  priority: "8"
   version: "2.0"
   author: autoresearch
 ---
 
-# Revision Agent — Stage 4-A
+# Revision Agent — Stage 8
 
 **Execute confirmed checklist items only. Do not make unrequested changes.
 Log every single edit. Flag cascade effects immediately.**
@@ -25,13 +25,13 @@ Log every single edit. Flag cascade effects immediately.**
 
 ## Context to Load Before Starting
 
-1. Run `autoresearch status` — confirm CP 3 is cleared.
-2. Read `sessions/[id]/stage4/revision_checklist.md` — the confirmed checklist with researcher decisions (ADDRESS / DECLINE / OPTIONAL).
-3. Read `sessions/[id]/stage3/synthesis.md` — the full review synthesis for context.
+1. Run `autoresearch status` — confirm CP 7 is cleared.
+2. Read `sessions/[id]/stage8/revision_checklist.md` — the confirmed checklist with researcher decisions (ADDRESS / DECLINE / OPTIONAL).
+3. Read `sessions/[id]/stage7/synthesis.md` — the full review synthesis for context.
 4. Read the most recent manuscript version:
-   - `sessions/[id]/stage4/revised_manuscript.md` if it exists (prior revision pass)
-   - Otherwise: assemble from `sessions/[id]/stage2/manuscript/*.md`
-5. Read `sessions/[id]/stage4/change_log.md` — to continue numbering from the last entry.
+   - `sessions/[id]/stage8/revised_manuscript.md` if it exists (prior revision pass)
+   - Otherwise: assemble from `sessions/[id]/stage6/*.md`
+5. Read `sessions/[id]/stage8/change_log.md` — to continue numbering from the last entry.
 
 ---
 
@@ -42,7 +42,7 @@ Group checklist items by type before starting:
 | Status | Action |
 |---|---|
 | ADDRESS | Must revise — process in order of severity (Major first) |
-| OPTIONAL | Revise only if confirmed at CP 3; skip otherwise |
+| OPTIONAL | Revise only if confirmed at CP 7; skip otherwise |
 | DECLINE | Do NOT revise; record rebuttal rationale in change log |
 
 Within ADDRESS items: process Major concerns before Minor, to detect cascades early.
@@ -64,7 +64,7 @@ Read the checklist item carefully:
 
 Revision philosophy: **surgical, not structural**.
 - Fix the specific problem identified — do not rewrite surrounding text unless the fix requires it
-- If adding a missing statistic: insert it with exact formatting from Stage 1-B (copy the exact value)
+- If adding a missing statistic: insert it with exact formatting from Stage 3 (copy the exact value from analysis_results.txt)
 - If softening an overclaim: change the specific word/phrase, not the whole sentence
 - If adding a limitation: add it to the Limitations paragraph, not to a new location
 
@@ -123,7 +123,7 @@ For every DECLINE item:
 
 ## Step 4 — Generate Reviewer Response Letter
 
-After all revisions are complete, draft the response letter. This is a mandatory output of Stage 4-A.
+After all revisions are complete, draft the response letter. This is a mandatory output of Stage 8.
 
 **Letter structure:**
 
@@ -197,14 +197,14 @@ Sincerely,
 
 Produce three files:
 
-1. **`sessions/[id]/stage4/revised_manuscript.md`**:
+1. **`sessions/[id]/stage8/revised_manuscript.md`**:
    Full revised manuscript with all accepted changes incorporated.
 
-2. **`sessions/[id]/stage4/change_log.md`** (appended):
+2. **`sessions/[id]/stage8/change_log.md`** (appended):
    All changes with IDs, locations, before/after text, and cascade notes.
    Plus "Items Not Addressed" table with rebuttal rationales.
 
-3. **`sessions/[id]/stage4/response_letter.md`** (new):
+3. **`sessions/[id]/stage8/response_letter.md`** (new):
    Reviewer response letter ready for researcher to personalize and submit.
 
 ---
@@ -212,7 +212,7 @@ Produce three files:
 ## Output Format for Change Log
 
 ```
-## Revision Change Log — Stage 4-A
+## Revision Change Log — Stage 8
 
 | # | Checklist item | Location | Before | After | Cascade effects |
 |---|---|---|---|---|---|

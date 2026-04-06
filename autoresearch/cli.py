@@ -84,8 +84,8 @@ def cmd_new(args) -> None:
 
     print(f"\n✓ Session created: {session.session_id}")
     print(f"  Workspace: {session.workspace_dir}")
-    print(f"\n  Next step: place your data files in {session.workspace_dir}/input/")
-    print(f"  Then load the data-analysis skill and begin Stage 1-A (CP 1A).\n")
+    print(f"\n  Next step: place files in input/[topic]/ then run: autoresearch intake [topic]")
+    print(f"  Or load the intake skill in Claude and say 'start'.\n")
     _print_status(session)
 
 
@@ -186,14 +186,14 @@ def _run_review_synthesis(session) -> None:
 
     ws = WorkSpace(session)
     if not ws.all_reviews_present():
-        missing = [r for r in ("a", "b", "c") if not (ws.stage3_dir / f"reviewer_{r}.md").exists()]
+        missing = [r for r in ("a", "b", "c") if not (ws.review_dir / f"reviewer_{r}.md").exists()]
         print(f"Error: Missing reviews: {', '.join(f'reviewer_{r}.md' for r in missing)}", file=sys.stderr)
         print("  Save each reviewer's output to stage3/ and re-run.", file=sys.stderr)
         sys.exit(1)
 
     synthesis = auto_synthesize_if_ready(session, ws)
     if synthesis:
-        print(f"\n✓ Review synthesis generated: {ws.stage3_dir / 'synthesis.md'}")
+        print(f"\n✓ Review synthesis generated: {ws.review_dir / 'synthesis.md'}")
         print("\n" + synthesis)
     else:
         print("Error: Could not generate synthesis.", file=sys.stderr)
@@ -219,7 +219,7 @@ def _run_proofread(session) -> None:
     save_proofread_to_session(ws, report_text, session=session)
 
     print(f"\n✓ Proofreading complete: {len(report.issues)} issues found.")
-    print(f"  Report: {ws.stage4_dir / 'proofread_report.md'}")
+    print(f"  Report: {ws.proofread_dir / 'proofread_report.md'}")
     print()
     print(report_text)
 
@@ -348,7 +348,7 @@ def cmd_export(args) -> None:
     ws = WorkSpace(session)
 
     # Use revised manuscript if it exists, otherwise assemble from sections
-    revised = ws.stage4_dir / "revised_manuscript.md"
+    revised = ws.revision_dir / "revised_manuscript.md"
     if revised.exists():
         final_path = revised
         print(f"\n✓ Using revised manuscript: {revised}")
@@ -364,8 +364,8 @@ def cmd_export(args) -> None:
     ]
     if (ws.figures_dir / "captions.md").exists():
         sections.append("\n---\n\n## Figure Captions\n\n" + (ws.figures_dir / "captions.md").read_text(encoding="utf-8"))
-    if (ws.stage4_dir / "change_log.md").exists():
-        sections.append("\n---\n\n" + (ws.stage4_dir / "change_log.md").read_text(encoding="utf-8"))
+    if (ws.revision_dir / "change_log.md").exists():
+        sections.append("\n---\n\n" + (ws.revision_dir / "change_log.md").read_text(encoding="utf-8"))
     bundle.write_text("\n\n".join(sections), encoding="utf-8")
 
     print(f"✓ Final bundle: {bundle}")

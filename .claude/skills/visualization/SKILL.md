@@ -1,36 +1,36 @@
 ---
 name: visualization
 description: >
-  Publication-quality scientific figure generation for AutoResearch Stage 1-C.
+  Publication-quality scientific figure generation for AutoResearch Stage 4.
   Reasons from confirmed analysis results to propose figure types, generates
   complete annotated code (Python or R), executes scripts, and drafts captions.
-  Starts only after CP 1B is cleared.
-  Triggers on: "make figures", "plot", "visualize", "Stage 1-C", "figure plan",
-  or when CP 1B has been cleared in the current session.
+  Starts only after CP 3B is cleared.
+  Triggers on: "make figures", "plot", "visualize", "Stage 4", "figure plan",
+  or when CP 3B has been cleared in the current session.
 metadata:
   category: visualization
   trigger-keywords: "figure,plot,visualization,chart,graph,matplotlib,ggplot,publication,kaplan,ROC,volcano,heatmap,forest,boxplot,scatter"
-  applicable-stages: "1"
+  applicable-stages: "4"
   priority: "1"
   version: "2.0"
   author: autoresearch
 ---
 
-# Visualization — Stage 1-C
+# Visualization — Stage 4
 
 **Translate confirmed statistical results into publication-quality figures.
-Propose first, code after CP 1C approval. Every figure must make the key finding
+Propose first, code after CP 4 approval. Every figure must make the key finding
 visually obvious without reading the caption.**
 
 ---
 
 ## Context to Load Before Starting
 
-1. Run `autoresearch status` — confirm CP 1B is cleared.
-2. Read `sessions/[id]/stage1/analysis/interpretation.md` — the confirmed findings.
-3. Read `sessions/[id]/stage1/analysis/analysis_results.txt` — raw output for exact values.
+1. Run `autoresearch status` — confirm CP 3B is cleared.
+2. Read `sessions/[id]/stage3/interpretation.md` — the confirmed findings.
+3. Read `sessions/[id]/stage3/analysis_results.txt` — raw output for exact values.
 4. Note the "Summary for Story Writer" table — it lists each finding and its strength rating.
-5. Check `sessions/[id]/stage1/figures/` — note any existing figure files already present.
+5. Check `sessions/[id]/stage4/` — note any existing figure files already present.
 
 ---
 
@@ -120,7 +120,7 @@ For each key finding from the analysis report, work through this decision tree:
 Present figure plan. For each proposed figure:
 
 ```
-## Figure Plan — CP 1C
+## Figure Plan — CP 4
 
 ### Figure 1: [Key finding description]
 - **Finding:** [One sentence from analysis results]
@@ -191,7 +191,7 @@ Every figure script must follow this structure:
 """
 Figure [N]: [Description]
 AutoResearch Session: [session_id]
-CP 1C approved: [date]
+CP 4 approved: [date]
 """
 
 # ══════════════════════════════════════════════
@@ -314,7 +314,7 @@ ax.errorbar(x, means, yerr=ci95, fmt='none', color='black', capsize=4,
 ## Step 3 — Execute Figure Scripts
 
 ```bash
-cd sessions/[id]/stage1/figures
+cd sessions/[id]/stage4
 python fig1_[name].py
 ```
 
@@ -366,13 +366,13 @@ The figure shows that treatment is better.
 - [ ] Panel labels (A, B, C) are present and bold
 - [ ] Both PDF (vector) and PNG (raster) files exported
 - [ ] Caption follows the required format
-- [ ] Figures saved to `sessions/[id]/stage1/figures/`
+- [ ] Figures saved to `sessions/[id]/stage4/`
 
 ---
 
 ## Hard Rules
 
-1. **NEVER generate code before CP 1C is cleared**
+1. **NEVER generate code before CP 4 is cleared**
 2. **NEVER use pie charts** for group comparisons — use bar or box
 3. **NEVER use 3D charts** — they distort data
 4. **NEVER use rainbow/jet colormaps** — use perceptually uniform alternatives

@@ -1,12 +1,12 @@
 """
-Stage 2-A: Literature Search & Synthesis
+Stage 2: Background Knowledge (Literature Search & Synthesis)
 
 Responsibilities:
   1. Take user-provided references as the core set
   2. Expand via systematic search: PubMed (NCBI E-utilities) + Google Scholar
   3. Screen for relevance, flag user-provided papers that appear off-topic
   4. Synthesize by theme (not annotated list)
-  5. Explicitly identify the gap the current study addresses     → CP 2A
+  5. Output knowledge summary that grounds Stage 3 analysis choices → CP 2
 
 This module provides:
   - search_pubmed()        query NCBI PubMed (no API key required for basic use)
@@ -283,7 +283,7 @@ def build_search_log(
 # Checkpoint 2A: synthesis formatting
 # ──────────────────────────────────────────────────────────────────────────────
 
-def format_cp2a_synthesis(
+def format_cp2_synthesis(
     search_log: str,
     core_themes: list[dict],
     contradictions: str,
@@ -299,7 +299,7 @@ def format_cp2a_synthesis(
         {"theme": str, "summary": str, "key_papers": list[str], "relevance": str}
     """
     lines = [
-        "## Literature Synthesis — Stage 2-A",
+        "## Background Knowledge Synthesis — Stage 2",
         "",
         search_log,
         "",
@@ -352,8 +352,8 @@ def format_cp2a_synthesis(
     lines += [
         "",
         "---",
-        "✓ **CHECKPOINT 2A** — Confirm literature scope & key papers?",
-        "`[OK]` to proceed to Story Writer  |  `[ADD: paper/topic]`  |  `[REMOVE: ...]`  |  `[REDIRECT: ...]`",
+        "✓ **CHECKPOINT 2** — Confirm background knowledge & key papers?",
+        "`[OK]` to proceed to Stage 3 (Data Analysis)  |  `[ADD: paper/topic]`  |  `[REMOVE: ...]`  |  `[REDIRECT: ...]`",
     ]
 
     return "\n".join(lines)
@@ -363,6 +363,11 @@ def format_cp2a_synthesis(
 # Session integration
 # ──────────────────────────────────────────────────────────────────────────────
 
+def format_cp2a_synthesis(*args, **kwargs) -> str:
+    """Legacy alias for format_cp2_synthesis."""
+    return format_cp2_synthesis(*args, **kwargs)
+
+
 def save_literature_to_session(
     session: "ARSession",
     ws: "WorkSpace",
@@ -371,7 +376,7 @@ def save_literature_to_session(
     bib_content: str = "",
     synthesis_text: str = "",
 ) -> None:
-    """Persist Stage 2-A artifacts after CP 2A is cleared."""
+    """Persist Stage 2 artifacts after CP 2 is cleared."""
     if search_log_text:
         ws.save_search_log(search_log_text)
     if bib_content:

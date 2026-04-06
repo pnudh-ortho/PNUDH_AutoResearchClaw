@@ -1,8 +1,18 @@
 """
 Pipeline state machine for AutoResearch.
 
-Defines checkpoint ordering, stage dependencies, and the canonical
-13-checkpoint sequence the researcher must navigate.
+9-Stage pipeline:
+  Stage 1  INPUT 분류      — classify inputs, determine entry point
+  Stage 2  BACKGROUND      — systematic literature review and synthesis
+  Stage 3  DATA ANALYSIS   — statistical analysis with literature context
+  Stage 4  VISUALIZATION   — publication-quality figures
+  Stage 5  PAPER OUTLINE   — key message, narrative arc, section blueprints
+  Stage 6  PAPER DRAFT     — section writing (Methods→Results→…→Abstract)
+  Stage 7  PEER REVIEW     — parallel review by 3 independent reviewers
+  Stage 8  PAPER REVISION  — targeted revision + reviewer response letter
+  Stage 9  PROOFREADING    — final scientific proofreading
+
+15 checkpoints total.
 """
 
 from __future__ import annotations
@@ -17,141 +27,173 @@ if TYPE_CHECKING:
 # ──────────────────────────────────────────────────────────────────────────────
 
 CHECKPOINT_MAP: dict[str, dict] = {
-    "1A": {
+    # ── Stage 1: Input Classification ─────────────────────────────────────
+    "1": {
         "stage": 1,
+        "phase": "intake",
+        "after": "input classified, entry point confirmed",
+        "gate_question": "Approve file classification & entry point?",
+        "skill": "intake",
+        "description": "Researcher approves classified input files and pipeline entry point.",
+    },
+    # ── Stage 2: Background Knowledge ─────────────────────────────────────
+    "2": {
+        "stage": 2,
+        "phase": "literature",
+        "after": "background knowledge synthesis confirmed",
+        "gate_question": "Confirm literature scope & key papers?",
+        "skill": "literature",
+        "description": "Literature synthesis confirmed; knowledge base grounds Stage 3 analysis.",
+    },
+    # ── Stage 3: Data Analysis ─────────────────────────────────────────────
+    "3A": {
+        "stage": 3,
         "phase": "data_analysis",
-        "after": "data exploration + test proposal",
+        "after": "statistical analysis plan approved",
         "gate_question": "Approve statistical approach?",
         "skill": "data-analysis",
-        "description": "Researcher approves the statistical plan before any code runs.",
+        "description": "Researcher approves statistical plan before any code runs.",
     },
-    "1B": {
-        "stage": 1,
+    "3B": {
+        "stage": 3,
         "phase": "data_analysis",
-        "after": "analysis execution + interpretation",
+        "after": "analysis results & interpretation confirmed",
         "gate_question": "Approve results & interpretation?",
         "skill": "data-analysis",
-        "description": "Researcher confirms statistical results and Story-Writer summary.",
+        "description": "Researcher confirms results, interpretation, and Story-Writer summary.",
     },
-    "1C": {
-        "stage": 1,
+    # ── Stage 4: Visualization ─────────────────────────────────────────────
+    "4": {
+        "stage": 4,
         "phase": "visualization",
-        "after": "figure plan proposal",
+        "after": "figures confirmed",
         "gate_question": "Approve figure types & layout?",
         "skill": "visualization",
         "description": "Researcher selects figure types; code generation starts after.",
     },
-    "2A": {
-        "stage": 2,
-        "phase": "literature",
-        "after": "literature synthesis",
-        "gate_question": "Confirm scope & key papers?",
-        "skill": "literature",
-        "description": "Researcher adds/removes papers; Story Writer uses this synthesis.",
-    },
-    "2B": {
-        "stage": 2,
-        "phase": "story",
-        "after": "key message + narrative arc",
-        "gate_question": "Approve key message & narrative arc?",
+    # ── Stage 5: Paper Outline ─────────────────────────────────────────────
+    "5": {
+        "stage": 5,
+        "phase": "outline",
+        "after": "paper outline approved",
+        "gate_question": "Approve key message & paper outline?",
         "skill": "story-writer",
-        "description": "Researcher approves the narrative blueprint; section writing begins.",
+        "description": "Researcher approves narrative blueprint; section writing begins.",
     },
-    "2C-1": {
-        "stage": 2,
+    # ── Stage 6: Paper Draft ───────────────────────────────────────────────
+    "6-1": {
+        "stage": 6,
         "phase": "writing",
         "section": "methods",
-        "after": "Methods draft",
+        "after": "Methods section approved",
         "gate_question": "Proceed to Results?",
         "skill": "section-writer",
         "description": "Methods section approved.",
     },
-    "2C-2": {
-        "stage": 2,
+    "6-2": {
+        "stage": 6,
         "phase": "writing",
         "section": "results",
-        "after": "Results draft",
+        "after": "Results section approved",
         "gate_question": "Proceed to Discussion?",
         "skill": "section-writer",
         "description": "Results section approved.",
     },
-    "2C-3": {
-        "stage": 2,
+    "6-3": {
+        "stage": 6,
         "phase": "writing",
         "section": "discussion",
-        "after": "Discussion draft",
+        "after": "Discussion section approved",
         "gate_question": "Proceed to Conclusion?",
         "skill": "section-writer",
         "description": "Discussion section approved.",
     },
-    "2C-4": {
-        "stage": 2,
+    "6-4": {
+        "stage": 6,
         "phase": "writing",
         "section": "conclusion",
-        "after": "Conclusion draft",
+        "after": "Conclusion section approved",
         "gate_question": "Proceed to Introduction?",
         "skill": "section-writer",
         "description": "Conclusion section approved.",
     },
-    "2C-5": {
-        "stage": 2,
+    "6-5": {
+        "stage": 6,
         "phase": "writing",
         "section": "introduction",
-        "after": "Introduction draft",
+        "after": "Introduction section approved",
         "gate_question": "Proceed to Abstract?",
         "skill": "section-writer",
         "description": "Introduction section approved.",
     },
-    "2C-6": {
-        "stage": 2,
+    "6-6": {
+        "stage": 6,
         "phase": "writing",
         "section": "abstract",
-        "after": "Abstract draft",
-        "gate_question": "All sections approved?",
+        "after": "Abstract approved — full draft complete",
+        "gate_question": "All 6 sections complete?",
         "skill": "section-writer",
-        "description": "Abstract (last section) approved — manuscript complete.",
+        "description": "Abstract (final section) approved — manuscript complete.",
     },
-    "3": {
-        "stage": 3,
+    # ── Stage 7: Peer Review ──────────────────────────────────────────────
+    "7": {
+        "stage": 7,
         "phase": "review",
-        "after": "review synthesis",
+        "after": "peer review synthesis + revision scope decided",
         "gate_question": "Revision scope decided?",
         "skill": "reviewer-a / reviewer-b / reviewer-c",
         "description": "Researcher reads synthesis, decides which items to address.",
     },
-    "4": {
-        "stage": 4,
+    # ── Stage 8: Paper Revision ───────────────────────────────────────────
+    "8": {
+        "stage": 8,
         "phase": "revision",
+        "after": "revision complete, response letter drafted",
+        "gate_question": "Approve revised manuscript & response letter?",
+        "skill": "revision",
+        "description": "Researcher approves revised manuscript and reviewer response letter.",
+    },
+    # ── Stage 9: Proofreading ──────────────────────────────────────────────
+    "9": {
+        "stage": 9,
+        "phase": "proofread",
         "after": "proofreading complete",
-        "gate_question": "Approve final output?",
+        "gate_question": "Approve final output for submission?",
         "skill": "proofreader",
-        "description": "Final manuscript approved for output.",
+        "description": "Final manuscript approved for submission.",
     },
 }
 
-# Ordered sequence of all checkpoints
+# Ordered sequence of all 15 checkpoints
 CHECKPOINT_SEQUENCE: list[str] = [
-    "1A", "1B", "1C",
-    "2A", "2B",
-    "2C-1", "2C-2", "2C-3", "2C-4", "2C-5", "2C-6",
-    "3", "4",
+    "1",
+    "2",
+    "3A", "3B",
+    "4",
+    "5",
+    "6-1", "6-2", "6-3", "6-4", "6-5", "6-6",
+    "7",
+    "8",
+    "9",
 ]
 
 # Which prior checkpoints must be cleared before this one can be reached
 STAGE_DEPS: dict[str, list[str]] = {
-    "1A": [],
-    "1B": ["1A"],
-    "1C": ["1B"],
-    "2A": ["1A", "1B", "1C"],  # Stage 2 cannot start until all of Stage 1 is done
-    "2B": ["2A"],
-    "2C-1": ["2B"],
-    "2C-2": ["2C-1"],
-    "2C-3": ["2C-2"],
-    "2C-4": ["2C-3"],
-    "2C-5": ["2C-4"],
-    "2C-6": ["2C-5"],
-    "3":    ["2C-6"],
-    "4":    ["3"],
+    "1":   [],
+    "2":   ["1"],
+    "3A":  ["2"],              # analysis after background knowledge
+    "3B":  ["3A"],
+    "4":   ["3B"],             # visualization after analysis confirmed
+    "5":   ["2", "3B", "4"],   # outline needs literature + analysis + figures
+    "6-1": ["5"],
+    "6-2": ["6-1"],
+    "6-3": ["6-2"],
+    "6-4": ["6-3"],
+    "6-5": ["6-4"],
+    "6-6": ["6-5"],
+    "7":   ["6-6"],
+    "8":   ["7"],
+    "9":   ["8"],
 }
 
 # Section writing order (canonical)
@@ -159,12 +201,12 @@ SECTION_ORDER = ["methods", "results", "discussion", "conclusion", "introduction
 
 # Mapping: section name → checkpoint ID
 SECTION_CHECKPOINT: dict[str, str] = {
-    "methods":      "2C-1",
-    "results":      "2C-2",
-    "discussion":   "2C-3",
-    "conclusion":   "2C-4",
-    "introduction": "2C-5",
-    "abstract":     "2C-6",
+    "methods":      "6-1",
+    "results":      "6-2",
+    "discussion":   "6-3",
+    "conclusion":   "6-4",
+    "introduction": "6-5",
+    "abstract":     "6-6",
 }
 
 
@@ -210,11 +252,19 @@ class ARPipeline:
     def status_lines(session: "ARSession") -> list[str]:
         """Return a human-readable list of checkpoint statuses."""
         lines: list[str] = []
+        current_stage = -1
         for cp in CHECKPOINT_SEQUENCE:
             info = CHECKPOINT_MAP[cp]
+            stage = info["stage"]
+
+            # Stage header
+            if stage != current_stage:
+                current_stage = stage
+                lines.append(f"\n  {ARPipeline.stage_banner(stage)}")
+
             cleared = session.is_cleared(cp)
             icon = "✓" if cleared else "○"
-            label = f"CP {cp:4s}  {icon}  {info['after']}"
+            label = f"    CP {cp:<4}  {icon}  {info['after']}"
             if not cleared:
                 ok, missing = ARPipeline.can_proceed_to(cp, session)
                 if not ok:
@@ -225,10 +275,15 @@ class ARPipeline:
     @staticmethod
     def stage_banner(stage_num: int) -> str:
         banners = {
-            1: "STAGE 1 — Data Analysis & Visualization",
-            2: "STAGE 2 — Literature & Writing",
-            3: "STAGE 3 — Peer Review",
-            4: "STAGE 4 — Revision & Proofreading",
+            1: "STAGE 1 — Input Classification",
+            2: "STAGE 2 — Background Knowledge",
+            3: "STAGE 3 — Data Analysis",
+            4: "STAGE 4 — Visualization",
+            5: "STAGE 5 — Paper Outline",
+            6: "STAGE 6 — Paper Draft",
+            7: "STAGE 7 — Peer Review",
+            8: "STAGE 8 — Paper Revision",
+            9: "STAGE 9 — Proofreading",
         }
         return banners.get(stage_num, f"STAGE {stage_num}")
 
@@ -237,7 +292,7 @@ class ARPipeline:
         total = len(CHECKPOINT_SEQUENCE)
         cleared = sum(1 for cp in CHECKPOINT_SEQUENCE if session.is_cleared(cp))
         next_cp = ARPipeline.next_checkpoint(session)
-        current_stage = CHECKPOINT_MAP[next_cp]["stage"] if next_cp else 4
+        current_stage = CHECKPOINT_MAP[next_cp]["stage"] if next_cp else 9
         return {
             "total": total,
             "cleared": cleared,

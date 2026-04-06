@@ -42,8 +42,8 @@ For every file in archive/, determine the correct destination using the rules be
 | `.csv`, `.tsv` | `input/` | Raw tabular data |
 | `.xlsx`, `.xls` | Inspect (see below) | Could be raw data or analysis output |
 | `.pdf` | Inspect (see below) | Could be reference paper or figure |
-| `.bib`, `.ris`, `.nbib` | `stage2/literature/included_papers.bib` | Bibliography |
-| `.png`, `.jpg`, `.jpeg`, `.tiff`, `.svg` | `stage1/figures/` | Figure image |
+| `.bib`, `.ris`, `.nbib` | `stage2/included_papers.bib` | Bibliography |
+| `.png`, `.jpg`, `.jpeg`, `.tiff`, `.svg` | `stage4/` | Figure image |
 | `.docx`, `.doc` | Inspect (see below) | Could be manuscript draft or protocol |
 | `.py` | Inspect (see below) | Analysis code or figure code |
 | `.R`, `.r`, `.Rmd` | Inspect (see below) | Analysis code or figure code |
@@ -54,24 +54,24 @@ For every file in archive/, determine the correct destination using the rules be
 ### Content Inspection Rules (read first 30–50 lines)
 
 **`.xlsx` / `.xls`**:
-- If column headers include `p`, `p-value`, `p_val`, `OR`, `HR`, `CI`, `coefficient`, `β`, `mean ± SD`, `effect` → `stage1/analysis/analysis_results.txt` equivalent — save as `stage1/analysis/[filename]`
+- If column headers include `p`, `p-value`, `p_val`, `OR`, `HR`, `CI`, `coefficient`, `β`, `mean ± SD`, `effect` → `stage3/analysis_results.txt` equivalent — save as `stage3/[filename]`
 - Otherwise → `input/` (raw data)
 
 **`.pdf`**:
 - If first page contains: author names, journal name, DOI, year in citation format → `input/` (reference paper)
-- If filename suggests figure (e.g., `fig1_`, `figure_`, `Figure_`) → `stage1/figures/`
+- If filename suggests figure (e.g., `fig1_`, `figure_`, `Figure_`) → `stage4/`
 - Otherwise → `input/` (unknown — flag as UNCLEAR)
 
 **`.py`**:
-- If contains `matplotlib`, `seaborn`, `plt.`, `sns.`, `fig,`, `ax =`, `subplots` → `stage1/figures/`
-- Otherwise → `stage1/analysis/`
+- If contains `matplotlib`, `seaborn`, `plt.`, `sns.`, `fig,`, `ax =`, `subplots` → `stage4/`
+- Otherwise → `stage3/`
 
 **`.R` / `.Rmd`**:
-- If contains `ggplot`, `plot(`, `hist(`, `barplot(`, `geom_` → `stage1/figures/`
-- Otherwise → `stage1/analysis/`
+- If contains `ggplot`, `plot(`, `hist(`, `barplot(`, `geom_` → `stage4/`
+- Otherwise → `stage3/`
 
 **`.txt` / `.log`**:
-- If contains `p =`, `p<`, `t(`, `F(`, `χ²`, `U =`, `df =`, `95% CI`, `mean =`, `SD =`, `OR =`, `HR =` → `stage1/analysis/analysis_results.txt` (append or save as named file)
+- If contains `p =`, `p<`, `t(`, `F(`, `χ²`, `U =`, `df =`, `95% CI`, `mean =`, `SD =`, `OR =`, `HR =` → `stage3/analysis_results.txt` (append or save as named file)
 - Otherwise → `input/` (notes / context)
 
 **`.docx` / `.doc`**:
@@ -79,33 +79,33 @@ For every file in archive/, determine the correct destination using the rules be
 - Otherwise → `input/` (protocol, notes, or other context)
 
 **`.json`**:
-- If contains `"figure"`, `"plot"`, `"chart"`, `"axes"` keys → `stage1/figures/`
-- Otherwise → `stage1/analysis/`
+- If contains `"figure"`, `"plot"`, `"chart"`, `"axes"` keys → `stage4/`
+- Otherwise → `stage3/`
 
 **`.md` files** — match filename (case-insensitive):
 
 | Filename pattern | Destination |
 |---|---|
-| `reviewer_a*`, `review_a*`, `*_a.md` | `stage3/reviewer_a.md` |
-| `reviewer_b*`, `review_b*`, `*_b.md` | `stage3/reviewer_b.md` |
-| `reviewer_c*`, `review_c*`, `*_c.md` | `stage3/reviewer_c.md` |
-| `synthesis*`, `review_synthesis*` | `stage3/synthesis.md` |
-| `methods*`, `method*` | `stage2/manuscript/methods.md` |
-| `results*`, `result*` | `stage2/manuscript/results.md` |
-| `discussion*` | `stage2/manuscript/discussion.md` |
-| `conclusion*` | `stage2/manuscript/conclusion.md` |
-| `introduction*`, `intro*` | `stage2/manuscript/introduction.md` |
-| `abstract*` | `stage2/manuscript/abstract.md` |
-| `outline*`, `story*`, `narrative*`, `arc*` | `stage2/story/outline.md` |
-| `key_message*` | `stage2/story/key_message.md` |
-| `literature*`, `synthesis*`, `search*` | `stage2/literature/` |
-| `interpretation*` | `stage1/analysis/interpretation.md` |
-| `analysis_plan*`, `plan*` | `stage1/analysis/analysis_plan.md` |
-| `change_log*`, `changelog*` | `stage4/change_log.md` |
-| `revision_checklist*` | `stage4/revision_checklist.md` |
-| `revised_manuscript*` | `stage4/revised_manuscript.md` |
-| `proofread*`, `proofreading*` | `stage4/proofread_report.md` |
-| `response_letter*`, `rebuttal*` | `stage4/response_letter.md` |
+| `reviewer_a*`, `review_a*`, `*_a.md` | `stage7/reviewer_a.md` |
+| `reviewer_b*`, `review_b*`, `*_b.md` | `stage7/reviewer_b.md` |
+| `reviewer_c*`, `review_c*`, `*_c.md` | `stage7/reviewer_c.md` |
+| `synthesis*`, `review_synthesis*` | `stage7/synthesis.md` |
+| `methods*`, `method*` | `stage6/methods.md` |
+| `results*`, `result*` | `stage6/results.md` |
+| `discussion*` | `stage6/discussion.md` |
+| `conclusion*` | `stage6/conclusion.md` |
+| `introduction*`, `intro*` | `stage6/introduction.md` |
+| `abstract*` | `stage6/abstract.md` |
+| `outline*`, `story*`, `narrative*`, `arc*` | `stage5/outline.md` |
+| `key_message*` | `stage5/key_message.md` |
+| `literature*`, `synthesis*`, `search*` | `stage2/` |
+| `interpretation*` | `stage3/interpretation.md` |
+| `analysis_plan*`, `plan*` | `stage3/analysis_plan.md` |
+| `change_log*`, `changelog*` | `stage8/change_log.md` |
+| `revision_checklist*` | `stage8/revision_checklist.md` |
+| `revised_manuscript*` | `stage8/revised_manuscript.md` |
+| `proofread*`, `proofreading*` | `stage9/proofread_report.md` |
+| `response_letter*`, `rebuttal*` | `stage8/response_letter.md` |
 
 ---
 
@@ -124,7 +124,7 @@ Ambiguous files — please specify destination for each:
 
 1. study_notes.docx
    Content preview: "Patient selection criteria: aged 18-65, diagnosed with..."
-   Options: (A) input/ — protocol/context   (B) stage2/manuscript/methods.md
+   Options: (A) input/ — protocol/context   (B) stage6/methods.md
    Your choice for each? [A/B/other path]
 ```
 
@@ -140,16 +140,16 @@ File Organization Plan
   patient_data.csv            →  input/
   lab_results.xlsx            →  input/
   smith2023.pdf               →  input/
-  spss_output.txt             →  stage1/analysis/analysis_results.txt
-  fig1_boxplot.py             →  stage1/figures/
-  reviewer_a.md               →  stage3/reviewer_a.md
-  references.bib              →  stage2/literature/included_papers.bib
+  spss_output.txt             →  stage3/analysis_results.txt
+  fig1_boxplot.py             →  stage4/
+  reviewer_a.md               →  stage7/reviewer_a.md
+  references.bib              →  stage2/included_papers.bib
 ──────────────────────────────────────────────────────────
   7 files to move
   0 ambiguous (resolved above)
 
 Conflicts detected (file already exists at destination):
-  ⚠ stage3/reviewer_a.md already exists — overwrite or skip?
+  ⚠ stage7/reviewer_a.md already exists — overwrite or skip?
 
 Proceed?  [OK] / [EDIT: filename → new destination] / [SKIP: filename]
 ```
@@ -181,10 +181,10 @@ After completing all moves:
 Moved (7):
   ✓ patient_data.csv        →  input/
   ✓ smith2023.pdf           →  input/
-  ✓ spss_output.txt         →  stage1/analysis/analysis_results.txt
-  ✓ fig1_boxplot.py         →  stage1/figures/
-  ✓ reviewer_a.md           →  stage3/reviewer_a.md
-  ✓ references.bib          →  stage2/literature/included_papers.bib
+  ✓ spss_output.txt         →  stage3/analysis_results.txt
+  ✓ fig1_boxplot.py         →  stage4/
+  ✓ reviewer_a.md           →  stage7/reviewer_a.md
+  ✓ references.bib          →  stage2/included_papers.bib
 
 Skipped (1):
   ✗ fig2_scatter.py         →  [already exists at destination, not overwritten]
@@ -197,10 +197,10 @@ Remaining in archive/ (0): —
 ```
 Suggested next steps based on what was organized:
 
-1. reviewer_a.md added to stage3/ → check if all 3 reviews are now present:
+1. reviewer_a.md added to stage7/ → check if all 3 reviews are now present:
    run `autoresearch run synthesis` if reviewer_b.md and reviewer_c.md also exist.
 
-2. analysis_results.txt moved → Stage 1-B can now be completed:
+2. analysis_results.txt moved → Stage 3 (Data Analysis) can now be continued:
    Load data-analysis skill to interpret the results.
 ```
 

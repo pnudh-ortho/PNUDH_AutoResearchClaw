@@ -1,22 +1,22 @@
 ---
 name: proofreader
 description: >
-  Final systematic proofreading of a biomedical manuscript after Stage 4-A revision.
+  Final systematic proofreading of a biomedical manuscript after Stage 8 revision.
   Checks terminology consistency, abbreviations, citation completeness, figure cross-references,
   number and statistics consistency, claim-evidence alignment, gene/protein formatting,
   and mandatory statement completeness. Flags issues only — does not rewrite.
-  Triggers on: "proofread", "final check", "Stage 4-B",
-  or when revision (Stage 4-A) is complete and final output is next.
+  Triggers on: "proofread", "final check", "Stage 9",
+  or when revision (Stage 8) is complete and final output is next.
 metadata:
   category: proofreader
-  trigger-keywords: "proofread,final check,consistency,citation,abbreviation,figures,statistics,Stage 4-B,gene,formatting"
-  applicable-stages: "4"
-  priority: "4"
+  trigger-keywords: "proofread,final check,consistency,citation,abbreviation,figures,statistics,Stage 9,gene,formatting"
+  applicable-stages: "9"
+  priority: "9"
   version: "2.0"
   author: autoresearch
 ---
 
-# Proofreader — Stage 4-B
+# Proofreader — Stage 9
 
 **Final systematic pass. Flag and specify — do not rewrite. The researcher decides on every issue.**
 
@@ -24,11 +24,11 @@ metadata:
 
 ## Context to Load Before Starting
 
-1. Run `autoresearch status` — confirm Stage 4-A is complete.
-2. Read the revised manuscript: `sessions/[id]/stage4/revised_manuscript.md`
-   or assemble from `sessions/[id]/stage2/manuscript/` if no revision was run.
-3. Read `sessions/[id]/stage1/analysis/analysis_results.txt` — for statistics consistency check.
-4. Note the session's figure count from `sessions/[id]/stage1/figures/` (count fig*.py or fig*.R files).
+1. Run `autoresearch status` — confirm Stage 8 is complete.
+2. Read the revised manuscript: `sessions/[id]/stage8/revised_manuscript.md`
+   or assemble from `sessions/[id]/stage6/` if no revision was run.
+3. Read `sessions/[id]/stage3/analysis_results.txt` — for statistics consistency check.
+4. Note the session's figure count from `sessions/[id]/stage4/` (count fig*.py or fig*.R files).
 5. Check `config.autoresearch.yaml` for `stage2.writing.word_limits` (if set).
 
 ---
@@ -104,7 +104,7 @@ Abbreviation Issue 3: "GFR" used only once in Discussion ("glomerular filtration
 Figure Reference Issue 1: Figure 3 is cited in Results paragraph 2, but Figure 2 is not cited until Results paragraph 4.
   → Figures must be cited in sequential order. Check: is Figure 2 missing from the text, or is the citation out of order?
 
-Figure Reference Issue 2: Figure 4 expected (4 figure scripts found in stage1/figures/) but not cited anywhere in the manuscript.
+Figure Reference Issue 2: Figure 4 expected (4 figure scripts found in stage4/) but not cited anywhere in the manuscript.
   → Either add a citation for Figure 4 or remove the figure if unused.
 
 Table Reference Issue 1: Table 2 cited in Methods but Table 1 is not cited until Discussion.
@@ -258,7 +258,7 @@ Flag sections significantly over/under target. Note: these are guidelines, not h
 ## Output Format
 
 ```
-## Proofreading Report — Stage 4-B
+## Proofreading Report — Stage 9
 Total issues: [N] ([major count] requiring researcher review)
 
 ### Check 1: Terminology Consistency
@@ -290,7 +290,7 @@ The following passed all checks without any flagged issues:
 - [Section name] ✓
 
 ---
-✓ CHECKPOINT 4 — Proofreading complete
+✓ CHECKPOINT 9 — Proofreading complete
 Approve final output?  [OK] → export  |  [FIX: ...]
 ```
 

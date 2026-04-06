@@ -1,38 +1,43 @@
 ---
 name: data-analysis
 description: >
-  Biomedical data analysis for AutoResearch Stage 1-A and 1-B.
+  Biomedical data analysis for AutoResearch Stage 3.
   Explores raw data, checks statistical assumptions, proposes the appropriate
   test battery, executes approved analysis code, runs post-hoc power analysis,
   and produces a structured interpretation summary for the Story Writer.
-  Triggers on: "analyze data", "run statistics", "Stage 1", "what test should I use",
+  Triggers on: "analyze data", "run statistics", "Stage 3", "what test should I use",
   "check significance", "explore my data", or when raw data files are present in the session.
 metadata:
   category: analysis
-  trigger-keywords: "data,statistics,analysis,p-value,normality,test,ANOVA,regression,correlation,effect size,Stage 1,explore"
-  applicable-stages: "1"
+  trigger-keywords: "data,statistics,analysis,p-value,normality,test,ANOVA,regression,correlation,effect size,Stage 3,explore"
+  applicable-stages: "3"
   priority: "1"
   version: "2.0"
   author: autoresearch
 ---
 
-# Data Analysis — Stage 1-A / 1-B
+# Data Analysis — Stage 3
 
 **Produce rigorous, reproducible statistical analysis grounded in the data actually provided.
-Never run code before CP 1A is cleared. Never report "p < 0.05" — always exact values.**
+Never run code before CP 3A is cleared. Never report "p < 0.05" — always exact values.**
 
 ---
 
 ## Context to Load Before Starting
 
-1. Run `autoresearch status` — note current session ID and workspace path.
-2. List files in `sessions/[id]/input/` — identify all data files.
-3. Read `sessions/[id]/input/README.md` if present — note researcher's study description.
-4. If `sessions/[id]/stage1/analysis/analysis_results.txt` already exists, skip to Step 3 (Interpret).
+1. Run `autoresearch status` — confirm CP 2 (Background Knowledge) is cleared.
+2. Read `sessions/[id]/stage2/synthesis.md` — use this to:
+   - Identify statistical methods commonly used in this research area
+   - Note effect sizes from prior studies for power analysis benchmarking
+   - Reference these when proposing and interpreting analyses
+3. Run `autoresearch status` — note current session ID and workspace path.
+4. List files in `sessions/[id]/input/` — identify all data files.
+5. Read `sessions/[id]/input/README.md` if present — note researcher's study description.
+6. If `sessions/[id]/stage3/analysis_results.txt` already exists, skip to Step 3 (Interpret).
 
 ---
 
-## Step 1 — Explore & Propose  *(no code runs until CP 1A)*
+## Step 1 — Explore & Propose  *(no code runs until CP 3A)*
 
 ### 1.1 Load and Inspect
 
@@ -136,7 +141,7 @@ Present the full analysis plan:
 
 **Format:**
 ```
-## Analysis Plan — CP 1A
+## Analysis Plan — CP 3A
 
 **Dataset:** [N] observations, [K] variables
 **Groups:** [Group A] (n=[X]), [Group B] (n=[Y])
@@ -165,7 +170,7 @@ Present the full analysis plan:
 
 ### 2.1 Generate Code
 
-After CP 1A approval, write analysis code with these requirements:
+After CP 3A approval, write analysis code with these requirements:
 - One script total: `analysis_code.py` or `analysis_code.R`
 - Header comment block: analysis date, session ID, approved tests, data file path
 - Import section at top; no in-line imports
@@ -176,9 +181,9 @@ After CP 1A approval, write analysis code with these requirements:
 **Python template:**
 ```python
 """
-AutoResearch Stage 1-A Analysis
+AutoResearch Stage 3 Analysis
 Session: [session_id]
-CP 1A approved: [date]
+CP 3A approved: [date]
 Tests: [list of approved tests]
 """
 
@@ -213,7 +218,7 @@ print(f"Effect size (r) = {r:.4f}")
 Run via Claude Code sandbox:
 ```bash
 cd sessions/[id]
-python stage1/analysis/analysis_code.py > stage1/analysis/analysis_results.txt 2>&1
+python stage3/analysis_code.py > stage3/analysis_results.txt 2>&1
 ```
 
 Capture all output: test statistics, p-values, descriptive tables, any warnings.
@@ -223,7 +228,7 @@ Capture all output: test statistics, p-values, descriptive tables, any warnings.
 If a test fails or produces unexpected results:
 - Report the error exactly — do not silently substitute another test
 - Propose one specific alternative with rationale
-- Raise at CP 1B: "The approved test [X] failed because [Y]. I propose [Z] instead. Do you approve?"
+- Raise at CP 3B: "The approved test [X] failed because [Y]. I propose [Z] instead. Do you approve?"
 - Do not proceed without researcher confirmation of the substitute
 
 ---
@@ -322,7 +327,7 @@ The following must be flagged when applicable — never omit:
 
 ### 3.4 Summary for Story Writer
 
-End every CP 1B report with this exact block:
+End every CP 3B report with this exact block:
 
 ```
 ## Summary for Story Writer
@@ -354,7 +359,7 @@ Present full interpretation report including:
 
 ---
 
-## Self-Check Before Presenting at CP 1B
+## Self-Check Before Presenting at CP 3B
 
 - [ ] Every result has: test statistic, df, exact p-value, effect size, 95% CI
 - [ ] No result reports "p < .05" — all p-values are exact
@@ -370,7 +375,7 @@ Present full interpretation report including:
 
 ## Hard Rules
 
-1. **NEVER run code before CP 1A is cleared** — not even "just to check"
+1. **NEVER run code before CP 3A is cleared** — not even "just to check"
 2. **NEVER report "p < .05"** — always exact p-values to 3 decimal places
 3. **NEVER omit effect sizes** — they are mandatory alongside every p-value
 4. **NEVER say "no effect" from a non-significant result** — report power and minimum detectable effect instead

@@ -1,7 +1,7 @@
 """
-Stage 4-B: Proofreader
+Stage 9: Proofreader
 
-Systematic final check of the revised manuscript before CP 4.
+Systematic final check of the revised manuscript before CP 9.
 Flags issues — does NOT rewrite.
 
 Checks:
@@ -325,7 +325,7 @@ def format_cp4_report(report: ProofreadReport) -> str:
     """Format the full proofreading report for CP 4."""
     cats = report.issues_by_category()
     lines = [
-        "## Proofreading Report — Stage 4-B",
+        "## Proofreading Report — Stage 9",
         "",
         f"Total issues found: **{len(report.issues)}**",
         "",
@@ -369,7 +369,7 @@ def format_cp4_report(report: ProofreadReport) -> str:
 
     lines += [
         "---",
-        "✓ **CHECKPOINT 4** — Proofreading complete",
+        "✓ **CHECKPOINT 9** — Proofreading complete",
         "Approve final output?  `[OK]` → manuscript exported  |  `[FIX: ...]`",
     ]
 
@@ -385,7 +385,7 @@ def save_proofread_to_session(
     report_text: str,
     session: "ARSession | None" = None,
 ) -> None:
-    """Persist Stage 4-B proofread report to disk and session state."""
+    """Persist Stage 9 proofread report to disk and session state."""
     ws.save_proofread_report(report_text)
     if session is not None:
         session.proofread_report = report_text

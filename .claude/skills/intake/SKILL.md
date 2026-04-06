@@ -1,7 +1,7 @@
 ---
 name: intake
 description: >
-  Smart input intake for AutoResearch — Stage 0.
+  Smart input intake for AutoResearch — Stage 1.
   Scans input/[topic]/ at the project root, classifies every file by type and
   pipeline relevance, determines the optimal pipeline entry point (which checkpoints
   are pre-satisfied by existing materials), creates a session, moves files into the
@@ -11,13 +11,13 @@ description: >
 metadata:
   category: pipeline
   trigger-keywords: "시작,start,begin,intake,파일,files,input,topic,classify,분류,새 연구,new study"
-  applicable-stages: "0"
+  applicable-stages: "1"
   priority: "0"
   version: "2.0"
   author: autoresearch
 ---
 
-# Intake — Stage 0
+# Intake — Stage 1
 
 **The researcher drops all files into input/[topic]/ and says "start."
 This skill handles everything else: classification, entry point detection,
@@ -66,15 +66,15 @@ For each file, apply the classification rules below.
 
 | Category | Description | Pipeline implication |
 |---|---|---|
-| `raw_data` | Unprocessed tabular data | Stage 1-A: data analysis needed |
-| `analysis_output` | Statistics output from prior analysis | Stage 1-A can be skipped or partially skipped |
-| `figure_image` | Rendered figure files | Stage 1-C may be partially satisfied |
-| `figure_code` | Python/R scripts that generate figures | Stage 1-C context available |
-| `analysis_code` | Python/R scripts for data analysis | Stage 1 code context available |
-| `reference_pdf` | Peer-reviewed papers for citation | Stage 2-A accelerated |
-| `bibliography` | .bib / .ris reference files | Stage 2-A ready |
+| `raw_data` | Unprocessed tabular data | Stage 3: data analysis needed |
+| `analysis_output` | Statistics output from prior analysis | Stage 3 can be skipped or partially skipped |
+| `figure_image` | Rendered figure files | Stage 4 may be partially satisfied |
+| `figure_code` | Python/R scripts that generate figures | Stage 4 context available |
+| `analysis_code` | Python/R scripts for data analysis | Stage 3 code context available |
+| `reference_pdf` | Peer-reviewed papers for citation | Stage 2 accelerated |
+| `bibliography` | .bib / .ris reference files | Stage 2 ready |
 | `manuscript_draft` | Written manuscript sections | Stages already complete |
-| `protocol_doc` | Study protocol or design document | CP 1A context |
+| `protocol_doc` | Study protocol or design document | CP 3A context |
 | `notes` | Researcher notes, hypotheses, context | General context for all stages |
 
 ### Classification Rules (apply in order)
@@ -149,39 +149,39 @@ Apply this decision tree to the classification results:
 ```
 All required manuscript sections present?
   (Methods + Results + Discussion + Conclusion + Introduction = 5 sections)
-  → YES: Entry point = Stage 3 (Review)
-         Auto-clear: CP 1A, 1B, 1C, 2A, 2B, 2C-1 through 2C-6
+  → YES: Entry point = Stage 7 (Review)
+         Auto-clear: CP 3A, 3B, 4, 2, 5, 6-1 through 6-6
 
 Some manuscript sections present (but not all 5)?
-  → YES: Entry point = Stage 2-C (continue writing)
+  → YES: Entry point = Stage 6 (continue writing)
          Find first missing section in writing order: Methods → Results → Discussion → Conclusion → Introduction
          Auto-clear: stages completed up to the first missing section
 
 analysis_output AND figure_image both present?
-  → YES: Entry point = Stage 2-A (Literature)
-         Auto-clear: CP 1A, 1B, 1C
+  → YES: Entry point = Stage 2 (Background Knowledge / Literature)
+         Auto-clear: CP 3A, 3B, 4
          Note: analysis results and figures already exist; proceed to narrative and writing
 
 analysis_output present (but no figures)?
-  → YES: Entry point = Stage 1-C (Visualization)
-         Auto-clear: CP 1A, 1B
+  → YES: Entry point = Stage 4 (Visualization)
+         Auto-clear: CP 3A, 3B
          Note: analysis already done; propose figures based on existing results
 
 reference_pdf only (no raw_data, no analysis_output)?
-  → YES: Entry point = Stage 2-A (Literature, reference-only mode)
+  → YES: Entry point = Stage 2 (Background Knowledge, reference-only mode)
          Note: no data analysis; this may be a review article or data-free study
 
 raw_data present (standard case)?
-  → YES: Entry point = Stage 1-A (Data Analysis — normal start)
+  → YES: Entry point = Stage 3 (Data Analysis — normal start)
          Auto-clear: none
 
 Nothing found?
-  → Entry point = Stage 1-A (empty start)
+  → Entry point = Stage 3 (empty start)
 ```
 
 ---
 
-## Step 5 — CP 0: Intake Report
+## Step 5 — CP 1: Intake Report
 
 Present the intake report and wait for researcher confirmation.
 
@@ -200,16 +200,16 @@ Present the intake report and wait for researcher confirmation.
 
 ### Recommended Entry Point
 
-→ **Stage 1-C (Visualization)** — CP 1C
+→ **Stage 4 (Visualization)** — CP 4
 
 Reason: Analysis output (spss_output.txt) is present, suggesting data analysis
-is already complete. No figures yet — Stage 1-C will propose figure types based
+is already complete. No figures yet — Stage 4 will propose figure types based
 on the existing results and generate code.
 
 ### Checkpoints to Auto-Clear (pending your approval)
 
-  CP 1A (statistical approach approval)  — analysis_output present; assumes analysis was performed externally
-  CP 1B (results interpretation)         — requires researcher review of spss_output.txt before clearing
+  CP 3A (statistical approach approval)  — analysis_output present; assumes analysis was performed externally
+  CP 3B (results interpretation)         — requires researcher review of spss_output.txt before clearing
 
 ### File Placement Plan
 
@@ -218,21 +218,21 @@ on the existing results and generate code.
   smith2023.pdf               →  sessions/[id]/input/
   kim2022.pdf                 →  sessions/[id]/input/
   jones2021.pdf               →  sessions/[id]/input/
-  spss_output.txt             →  sessions/[id]/stage1/analysis/analysis_results.txt
-  fig1_km_curve.png           →  sessions/[id]/stage1/figures/
-  analysis_code.R             →  sessions/[id]/stage1/analysis/
+  spss_output.txt             →  sessions/[id]/stage3/analysis_results.txt
+  fig1_km_curve.png           →  sessions/[id]/stage4/figures/
+  analysis_code.R             →  sessions/[id]/stage3/
   hypothesis.txt              →  sessions/[id]/input/
   study_design.md             →  sessions/[id]/input/
 
 ---
-✓ CHECKPOINT 0 — Intake complete
-Entry point: Stage 1-C (Visualization)
+✓ CHECKPOINT 1 — Intake complete
+Entry point: Stage 4 (Visualization)
 
 Options:
   [OK]                         — proceed with this entry point
-  [ENTRY: Stage 1-A]           — restart from full data analysis
-  [ENTRY: Stage 2-A]           — skip analysis, go straight to literature
-  [ENTRY: Stage 3]             — all analysis and writing done; just need review
+  [ENTRY: Stage 3]             — restart from full data analysis
+  [ENTRY: Stage 2]             — skip analysis, go straight to background knowledge
+  [ENTRY: Stage 7]             — all analysis and writing done; just need review
   [ADD FILES]                  — add more files to input/[topic]/ first
 ```
 
@@ -261,21 +261,21 @@ Get the session ID and workspace path from `autoresearch status`.
 mv "input/[topic]/patient_data.csv" "sessions/[id]/input/"
 mv "input/[topic]/smith2023.pdf"    "sessions/[id]/input/"
 
-# Analysis output → stage1/analysis/ with standard filename
-mv "input/[topic]/spss_output.txt"  "sessions/[id]/stage1/analysis/analysis_results.txt"
+# Analysis output → stage3/ with standard filename
+mv "input/[topic]/spss_output.txt"  "sessions/[id]/stage3/analysis_results.txt"
 
-# Figures → stage1/figures/
-mv "input/[topic]/fig1_km_curve.png" "sessions/[id]/stage1/figures/"
+# Figures → stage4/figures/
+mv "input/[topic]/fig1_km_curve.png" "sessions/[id]/stage4/figures/"
 
 # Code → appropriate stage
-mv "input/[topic]/analysis_code.R"  "sessions/[id]/stage1/analysis/"
+mv "input/[topic]/analysis_code.R"  "sessions/[id]/stage3/"
 
 # Notes stay in input/ for context
 mv "input/[topic]/hypothesis.txt"   "sessions/[id]/input/"
 mv "input/[topic]/study_design.md"  "sessions/[id]/input/"
 
-# Manuscript drafts → manuscript/[section].md
-mv "input/[topic]/methods_draft.md" "sessions/[id]/stage2/manuscript/methods.md"
+# Manuscript drafts → stage6/[section].md
+mv "input/[topic]/methods_draft.md" "sessions/[id]/stage6/methods.md"
 ```
 
 **6.3 Keep input/[topic]/ folder intact** (may still contain the original files as backup).
@@ -286,7 +286,7 @@ mv "input/[topic]/methods_draft.md" "sessions/[id]/stage2/manuscript/methods.md"
 
 For each checkpoint the researcher approved to auto-clear:
 ```bash
-autoresearch approve 1A --note "Intake: analysis output provided by researcher (spss_output.txt)"
+autoresearch approve 3A --note "Intake: analysis output provided by researcher (spss_output.txt)"
 ```
 
 **Only clear what was explicitly approved at CP 0.** Do not silently clear checkpoints.
@@ -299,11 +299,11 @@ State the handoff clearly and load the relevant skill:
 
 | Entry point | Announcement | Skill to load |
 |---|---|---|
-| Stage 1-A | "Starting data analysis. Let's explore the data files." | data-analysis |
-| Stage 1-C | "Analysis results are present. Let's design the figures." | visualization |
-| Stage 2-A | "Moving to literature search. [N] reference PDFs will be the starting set." | literature |
-| Stage 2-C | "Continuing manuscript writing. Next section: [section name]." | section-writer |
-| Stage 3 | "Complete draft found. Starting parallel peer review." | reviewer-a/b/c |
+| Stage 3 | "Starting data analysis. Let's explore the data files." | data-analysis |
+| Stage 4 | "Analysis results are present. Let's design the figures." | visualization |
+| Stage 2 | "Moving to background knowledge search. [N] reference PDFs will be the starting set." | literature |
+| Stage 6 | "Continuing manuscript writing. Next section: [section name]." | section-writer |
+| Stage 7 | "Complete draft found. Starting parallel peer review." | reviewer-a/b/c |
 
 ---
 

@@ -1,23 +1,23 @@
 ---
 name: literature
 description: >
-  Systematic literature search and synthesis for AutoResearch Stage 2-A.
+  Systematic literature search and synthesis for AutoResearch Stage 2.
   Mandatory even when the researcher has provided references — always expands
   the knowledge base. Searches PubMed and Google Scholar, screens for relevance,
   synthesizes by theme (not as an annotated list), identifies the evidence gap,
   and connects it to the current study's contribution.
-  Triggers on: "literature search", "find papers", "Stage 2-A", "knowledge base",
-  "references", or when CP 1C has been cleared and writing is next.
+  Triggers on: "literature search", "find papers", "Stage 2", "knowledge base",
+  "references", or when CP 4 has been cleared and writing is next.
 metadata:
   category: literature
-  trigger-keywords: "literature,search,PubMed,scholar,papers,references,citation,synthesis,background,gap,Stage 2-A"
+  trigger-keywords: "literature,search,PubMed,scholar,papers,references,citation,synthesis,background,gap,Stage 2"
   applicable-stages: "2"
   priority: "1"
   version: "2.0"
   author: autoresearch
 ---
 
-# Literature — Stage 2-A
+# Literature — Stage 2
 
 **Build the knowledge base that grounds the narrative.
 Synthesize by theme — never produce an annotated list.
@@ -27,11 +27,13 @@ Never fabricate citations. Never restrict to recent years by default.**
 
 ## Context to Load Before Starting
 
-1. Run `autoresearch status` — confirm CP 1C (or 1B) is cleared.
-2. Read `sessions/[id]/stage1/analysis/interpretation.md` — the confirmed findings.
+1. Run `autoresearch status` — confirm CP 4 (Visualization) is cleared.
+2. Read `sessions/[id]/stage3/interpretation.md` — the confirmed findings.
 3. List files in `sessions/[id]/input/` — identify any reference PDFs the researcher provided.
 4. Read `sessions/[id]/input/README.md` or any notes files — note the stated research question.
-5. If `sessions/[id]/stage2/literature/synthesis.md` exists, continue from where it was left.
+5. If `sessions/[id]/stage2/synthesis.md` exists, continue from where it was left.
+
+This synthesis will directly inform Stage 3 (Data Analysis) — include effect sizes from key studies, commonly used statistical methods in this domain, and benchmark values for comparison.
 
 ---
 
@@ -70,7 +72,7 @@ For each PICO component, generate:
 
 Before searching, review every PDF/citation the researcher provided:
 - Extract: authors, title, journal, year, key finding
-- Flag any that appear tangentially related — raise at CP 2A
+- Flag any that appear tangentially related — raise at CP 2
 - Do not discard any — but note if a paper does not fit the synthesis
 
 ---
@@ -205,12 +207,35 @@ Your synthesis output must include all five of these:
 
 ---
 
-### ✓ CHECKPOINT 2A
+## Knowledge Summary for Stage 3
+
+Before the checkpoint, append this section to the synthesis output to directly support Stage 3 (Data Analysis):
+
+```
+## Knowledge Summary for Stage 3
+
+### Effect sizes from literature
+| Study | Outcome | Effect size | Study design | n |
+|---|---|---|---|---|
+| [Author Year] | [outcome] | [d / OR / HR / r = X] | [RCT / cohort / etc.] | [N] |
+
+### Statistical methods commonly used in this research area
+- [Method name] — used for [reason/context]
+- [Method name] — used for [reason/context]
+
+### Benchmark values for current study comparison
+- [Variable or outcome]: [typical value or range from literature, with citation]
+- [Variable or outcome]: [typical value or range from literature, with citation]
+```
+
+---
+
+### ✓ CHECKPOINT 2
 
 Present the full synthesis including all five required sections and the search documentation.
 
 ```
-## Literature Synthesis — CP 2A
+## Literature Synthesis — CP 2
 
 ### Search Documentation
 [As specified in Step 2.4]
@@ -237,7 +262,7 @@ Present the full synthesis including all five required sections and the search d
 ...
 
 ---
-✓ CHECKPOINT 2A — Confirm literature scope?
+✓ CHECKPOINT 2 — Confirm literature scope?
 [OK] / [ADD: paper or topic] / [REMOVE: citation] / [REDIRECT: ...]
 ```
 
@@ -266,7 +291,7 @@ Present the full synthesis including all five required sections and the search d
 4. **NEVER write "little is known about X"** as the gap — always name the specific missing evidence
 5. **NEVER search GEO, TCGA, or data repositories** — that is the researcher's domain
 6. **NEVER begin Story Writer work during this phase**
-7. If a user-provided paper appears low-relevance: flag it at CP 2A, do not silently exclude it
+7. If a user-provided paper appears low-relevance: flag it at CP 2, do not silently exclude it
 
 ---
 

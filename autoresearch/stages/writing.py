@@ -1,22 +1,23 @@
 """
-Stage 2-B + 2-C: Story Writer & Section Writer
+Stage 5 (Paper Outline) + Stage 6 (Paper Draft)
 
-Stage 2-B — Story Writer:
-  1. Derive the key message sentence (one sentence, specific + grounded)
-  2. Design the narrative arc (how each section contributes)
-  3. Produce section-by-section outline                           → CP 2B
+Stage 5 — Paper Outline (formerly Story Writer):
+  1. Synthesize Stage 2 literature + Stage 3 analysis + Stage 4 figures
+  2. Derive the key message sentence (one sentence, specific + grounded)
+  3. Design the narrative arc (how each section contributes)
+  4. Produce section-by-section outline                           → CP 5
 
-Stage 2-C — Section Writer:
+Stage 6 — Paper Draft (formerly Section Writer):
   Write one section at a time in this order:
   Methods → Results → Discussion → Conclusion → Introduction → Abstract
-  Each section has its own checkpoint (CP 2C-1 through CP 2C-6).
+  Each section has its own checkpoint (CP 6-1 through CP 6-6).
 
 This module provides:
-  - format_cp2b_outline()       format Story Writer output for CP 2B
+  - format_cp5_outline()        format Paper Outline output for CP 5
   - section_header()            return per-section writing rules reminder
   - format_section_checkpoint() format per-section output with checkpoint block
   - assemble_manuscript()       assemble confirmed sections into full_manuscript.md
-  - save_story_to_session()     persist 2-B artifacts
+  - save_story_to_session()     persist Stage 5 artifacts
   - save_section_to_session()   persist one confirmed section draft
 """
 
@@ -33,7 +34,7 @@ from autoresearch.pipeline import SECTION_ORDER, SECTION_CHECKPOINT
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Stage 2-B: Story Writer
+# Stage 5: Paper Outline (Story Writer)
 # ──────────────────────────────────────────────────────────────────────────────
 
 KEY_MESSAGE_TEMPLATE = """\
@@ -42,8 +43,8 @@ by [magnitude] ([stat]), suggesting [mechanism/implication] [warranting/pending]
 
 ✓ Requirements:
   - Specific: names finding, population, direction, context
-  - Grounded: traceable to confirmed analysis results (Stage 1-B)
-  - Connected: addresses the gap from literature synthesis (Stage 2-A)
+  - Grounded: traceable to confirmed analysis results (Stage 3, CP 3B)
+  - Connected: addresses the gap from background knowledge synthesis (Stage 2)
   - Proportional: calibrated to what the data actually supports
 """
 
@@ -56,7 +57,7 @@ Map how each section contributes to the key message:
   (Do NOT reveal findings here)
 
 **Methods:** design justification → key methodological choices → statistical approach
-  (Reference the CP 1A confirmed plan exactly)
+  (Reference the CP 3A confirmed plan exactly)
 
 **Results:** primary finding first (largest effect / most central to hypothesis)
   → supporting evidence in logical order → null findings reported honestly
@@ -75,7 +76,7 @@ SECTION_RULES: dict[str, str] = {
 **Methods writing rules:**
 - Past tense throughout
 - Sufficient detail for independent replication
-- Statistical methods: match exactly what was confirmed at CP 1A
+- Statistical methods: match exactly what was confirmed at CP 3A
 - Ethics/approval statement if applicable
 - Do NOT include results""",
 
@@ -131,15 +132,15 @@ Self-check before presenting:
 """
 
 
-def format_cp2b_outline(
-    stage1_context: str,
+def format_cp5_outline(
+    stage_context: str,
     literature_synthesis_snippet: str,
     key_message: str,
     narrative_arc: str,
     section_outlines: list[dict],
 ) -> str:
     """
-    Format the full CP 2B output.
+    Format the full CP 5 output (Paper Outline).
 
     section_outlines: list of dicts (one per section, in writing order):
         {"section": str,
@@ -150,13 +151,13 @@ def format_cp2b_outline(
          "flags": list[str]}
     """
     lines = [
-        "## Story Writer — Stage 2-B",
+        "## Paper Outline — Stage 5",
         "",
-        "### Stage 1 Context (confirmed)",
+        "### Upstream Context (confirmed Stage 2–4 outputs)",
         "",
-        stage1_context,
+        stage_context,
         "",
-        "### Literature Gap (from CP 2A)",
+        "### Evidence Gap (from Stage 2 Background Knowledge)",
         "",
         literature_synthesis_snippet,
         "",
@@ -209,13 +210,21 @@ def format_cp2b_outline(
 
     lines += [
         "---",
-        "✓ **CHECKPOINT 2B** — Approve key message & narrative arc?",
+        "✓ **CHECKPOINT 5** — Approve key message & paper outline?",
         "`[OK]` to begin section writing  |  `[REVISE: ...]`  |  `[REDIRECT: ...]`",
         "",
-        "> Next: Section Writer — Methods (CP 2C-1)",
+        "> Next: Stage 6 — Paper Draft (Methods first, CP 6-1)",
     ]
 
     return "\n".join(lines)
+
+
+def format_cp2b_outline(stage1_context: str, literature_synthesis_snippet: str,
+                        key_message: str, narrative_arc: str,
+                        section_outlines: list[dict]) -> str:
+    """Legacy alias for format_cp5_outline."""
+    return format_cp5_outline(stage1_context, literature_synthesis_snippet,
+                              key_message, narrative_arc, section_outlines)
 
 
 def save_story_to_session(
@@ -226,7 +235,7 @@ def save_story_to_session(
     narrative_arc: str = "",
     outline_text: str = "",
 ) -> None:
-    """Persist Stage 2-B artifacts after CP 2B is cleared."""
+    """Persist Stage 5 artifacts after CP 5 is cleared."""
     if key_message:
         ws.save_key_message(key_message)
         session.key_message = key_message
@@ -238,7 +247,7 @@ def save_story_to_session(
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Stage 2-C: Section Writer
+# Stage 6: Paper Draft (Section Writer)
 # ──────────────────────────────────────────────────────────────────────────────
 
 def section_context_preamble(section_name: str, session: "ARSession") -> str:
@@ -251,14 +260,14 @@ def section_context_preamble(section_name: str, session: "ARSession") -> str:
         "",
         "### Confirmed context from earlier stages",
         "",
-        session.stage1_context(),
+        session.stage6_context(),
         "",
     ]
 
     if session.key_message:
-        lines += [f"**Key Message (CP 2B):** {session.key_message}", ""]
+        lines += [f"**Key Message (CP 5):** {session.key_message}", ""]
     if session.narrative_arc:
-        lines += ["**Narrative Arc (CP 2B):**", session.narrative_arc, ""]
+        lines += ["**Narrative Arc (CP 5):**", session.narrative_arc, ""]
 
     # Show already-confirmed sections
     done_sections = [s for s in SECTION_ORDER if s in session.section_drafts]
@@ -283,7 +292,7 @@ def format_section_checkpoint(
       - Notes for Researcher (new claims, extra refs, flags, word count)
       - Checkpoint block
     """
-    cp_id = SECTION_CHECKPOINT.get(section_name.lower(), "2C-?")
+    cp_id = SECTION_CHECKPOINT.get(section_name.lower(), "6-?")
     cp_num = cp_id.split("-")[-1] if "-" in cp_id else "?"
 
     # Next section in order
@@ -342,7 +351,7 @@ def save_section_to_session(
 def assemble_full_manuscript(session: "ARSession", ws: "WorkSpace") -> Path:
     """
     Assemble all confirmed section drafts into full_manuscript.md.
-    Called automatically after CP 2C-6 is cleared.
+    Called automatically after CP 6-6 is cleared.
     """
     return ws.assemble_manuscript(session)
 

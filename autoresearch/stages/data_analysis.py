@@ -1,12 +1,13 @@
 """
-Stage 1-A: Data Analysis
+Stage 3: Data Analysis
 
 Responsibilities:
-  1. Load and inspect data files from the input/ directory
-  2. Check statistical assumptions (normality, homogeneity, independence)
-  3. Propose statistical tests aligned with the research topic  → CP 1A
-  4. Execute approved analysis code in subprocess
-  5. Capture and interpret results                          → CP 1B
+  1. Load Stage 2 literature synthesis for analysis context
+  2. Load and inspect data files from the input/ directory
+  3. Check statistical assumptions (normality, homogeneity, independence)
+  4. Propose statistical tests informed by background knowledge  → CP 3A
+  5. Execute approved analysis code in subprocess
+  6. Capture and interpret results, comparing to literature     → CP 3B
 
 This module provides:
   - run_code()         run Python/R code in a subprocess, capture output
@@ -282,24 +283,38 @@ def generate_assumption_check_code(df_var: str, group_col: str, value_col: str) 
 # Checkpoint 1A: analysis proposal formatting
 # ──────────────────────────────────────────────────────────────────────────────
 
-def format_cp1a_proposal(
+def format_cp3a_proposal(
     data_summary: str,
     comparisons: list[dict],
+    literature_context: str = "",
 ) -> str:
     """
-    Format the CP 1A output that Claude presents to the researcher.
+    Format the CP 3A output that Claude presents to the researcher.
 
     comparisons: list of dicts with keys:
         comparison (str), test (str), rationale (str), expected_output (str)
+    literature_context: relevant effect sizes / methods from Stage 2 synthesis
     """
     lines = [
         "## Data Exploration Summary",
         "",
         data_summary,
         "",
+    ]
+
+    if literature_context:
+        lines += [
+            "## Context from Stage 2 (Background Knowledge)",
+            "",
+            literature_context,
+            "",
+        ]
+
+    lines += [
         "## Proposed Statistical Plan",
         "",
-        "The following analyses are proposed based on the data structure and research topic.",
+        "The following analyses are proposed based on the data structure, research topic,",
+        "and methods commonly used in this area (see Stage 2 synthesis).",
         "Each comparison is grounded in the data — no exploratory analyses added without justification.",
         "",
     ]
@@ -321,28 +336,36 @@ def format_cp1a_proposal(
         APA_FORMAT,
         "",
         "---",
-        "✓ **CHECKPOINT 1A** — Approve statistical approach?",
+        "✓ **CHECKPOINT 3A** — Approve statistical approach?",
         "`[OK]` to proceed with code generation  |  `[REVISE: ...]` to change approach  |  `[REDIRECT: ...]`",
     ]
 
     return "\n".join(lines)
 
 
+# Keep legacy alias
+def format_cp1a_proposal(data_summary: str, comparisons: list[dict]) -> str:
+    """Legacy alias for format_cp3a_proposal."""
+    return format_cp3a_proposal(data_summary, comparisons)
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Checkpoint 1B: interpretation formatting
 # ──────────────────────────────────────────────────────────────────────────────
 
-def format_cp1b_interpretation(
+def format_cp3b_interpretation(
     results_text: str,
     interpretation: str,
     story_writer_summary: list[str],
+    literature_comparison: str = "",
 ) -> str:
     """
-    Format the CP 1B output: results + interpretation + summary for Story Writer.
+    Format the CP 3B output: results + interpretation + summary for Stage 5.
 
     story_writer_summary: 3-5 bullets rating each finding
         e.g. ["Primary outcome (X vs Y): STRONG — p=.004, d=0.72",
                "Secondary outcome (A vs B): WEAK — p=.13, d=0.21"]
+    literature_comparison: how findings compare to Stage 2 literature benchmarks
     """
     lines = [
         "## Statistical Results",
@@ -353,7 +376,18 @@ def format_cp1b_interpretation(
         "",
         interpretation,
         "",
-        "## Summary for Story Writer",
+    ]
+
+    if literature_comparison:
+        lines += [
+            "## Comparison to Literature (Stage 2 Benchmarks)",
+            "",
+            literature_comparison,
+            "",
+        ]
+
+    lines += [
+        "## Summary for Stage 5 (Paper Outline)",
         "",
         "Rating scale: STRONG (d>0.5, p<.05) | MODERATE (d=0.2–0.5, p<.05) | WEAK (p>.05 or d<0.2) | NULL",
         "",
@@ -365,13 +399,23 @@ def format_cp1b_interpretation(
     lines += [
         "",
         "---",
-        "✓ **CHECKPOINT 1B** — Approve results & interpretation?",
+        "✓ **CHECKPOINT 3B** — Approve results & interpretation?",
         "`[OK]` to proceed to visualization  |  `[REVISE: ...]`  |  `[REDIRECT: ...]`",
         "",
-        "> Next step: Stage 1-B — Visualization (figure planning)",
+        "> Next step: Stage 4 — Visualization (figure planning)",
     ]
 
     return "\n".join(lines)
+
+
+# Keep legacy alias
+def format_cp1b_interpretation(
+    results_text: str,
+    interpretation: str,
+    story_writer_summary: list[str],
+) -> str:
+    """Legacy alias for format_cp3b_interpretation."""
+    return format_cp3b_interpretation(results_text, interpretation, story_writer_summary)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -390,9 +434,9 @@ def save_analysis_to_session(
     analysis_summary_bullets: list[str] | None = None,
 ) -> None:
     """
-    Persist all Stage 1-A artifacts to the workspace and session.
+    Persist all Stage 3 artifacts to the workspace and session.
 
-    Call this after CP 1B is cleared.
+    Call this after CP 3B is cleared.
     """
     if plan_text:
         ws.save_analysis_plan(plan_text)

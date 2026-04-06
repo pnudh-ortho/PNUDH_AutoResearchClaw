@@ -11,7 +11,16 @@
       "Bash(python3 -m py_compile autoresearch/stages/visualization.py autoresearch/stages/data_analysis.py autoresearch/stages/review.py)",
       "Bash(grep:*)",
       "Bash(python:*)",
-      "Bash(autoresearch intake:*)"
+      "Bash(autoresearch intake:*)",
+      "Bash(wc:*)",
+      "Bash(sed -i 's/Stage 4-A: Revision Agent/Stage 8: Revision Agent/; s/Persist Stage 4-A artifacts/Persist Stage 8 artifacts/; s/CP 3 is cleared/CP 7 is cleared/' /home/hyeonjin/PNUDH_AutoResearchClaw/autoresearch/stages/revision.py)",
+      "Bash(sed -i 's/Stage 4-B: Proofreader/Stage 9: Proofreader/; s/before CP 4/before CP 9/; s/Proofreading Report — Stage 4-B/Proofreading Report — Stage 9/; s/CHECKPOINT 4/CHECKPOINT 9/; s/Persist Stage 4-B/Persist Stage 9/' /home/hyeonjin/PNUDH_AutoResearchClaw/autoresearch/stages/proofreader.py)",
+      "Bash(sed -i 's/ws\\\\.stage4_dir/ws.revision_dir/g; s/ws\\\\.stage3_dir/ws.review_dir/g' /home/hyeonjin/PNUDH_AutoResearchClaw/autoresearch/cli.py)",
+      "Bash(sed -i 's/ws\\\\.revision_dir \\\\/ \"proofread_report\\\\.md\"/ws.proofread_dir \\\\/ \"proofread_report.md\"/' /home/hyeonjin/PNUDH_AutoResearchClaw/autoresearch/cli.py)",
+      "Bash(sed -i 's/Stage 1-B can now be completed:/Stage 3B can now be completed:/g' .claude/skills/organize/SKILL.md)",
+      "Bash(sed -i 's/from Stage 1-B \\(copy the exact value\\)/from Stage 3 \\(copy the exact value from analysis_results.txt\\)/g' .claude/skills/revision/SKILL.md)",
+      "Bash(sed -i 's/Reference the CP 1A confirmed plan exactly/Reference the CP 3A confirmed statistical plan exactly/g' .claude/skills/story-writer/SKILL.md)",
+      "Bash(sed -i 's/matches exactly what was approved at CP 1A/matches exactly what was approved at CP 3A/g' .claude/skills/story-writer/SKILL.md)"
     ]
   }
 }

@@ -10,24 +10,47 @@ Takes given data and references → produces a complete manuscript draft.
 ## Pipeline
 
 ```
-[INPUT]  Topic · Hypothesis · Raw data / Analysis results · Reference papers (user-provided)
+[INPUT]  Any files in input/[topic]/  →  intake skill auto-classifies everything
 
-STAGE 1  Data Analysis ──────────────────────────────────────────────────── [CP 1A] [CP 1B]
-         └─ Visualization (after all analysis confirmed) ──────────────────────────── [CP 1C]
+STAGE 1  Input Classification ───────────────────────────────────────────────────── [CP 1]
+         (classify files, detect entry point, create session, move files)
 
-STAGE 2  Literature ─────────────────────────────────────────────────────────────── [CP 2A]
-         └─ Story Writer (references Stage 1 output) ────────────────────────────── [CP 2B]
-            └─ Section Writer ×6 ──────────────────────────────── [CP 2C-1 … CP 2C-6]
-               Order: Methods → Results → Discussion → Conclusion → Introduction → Abstract
+STAGE 2  Background Knowledge ───────────────────────────────────────────────────── [CP 2]
+         (systematic literature search → thematic synthesis → evidence gap)
 
-STAGE 3  Review: Reviewer A ║ Reviewer B ║ Reviewer C  (parallel, independent)
-         └─ Review Synthesis (auto) ────────────────────────────────────────────── [CP 3]
+STAGE 3  Data Analysis ──────────────────────────────────────── [CP 3A] ── [CP 3B]
+         (literature-informed statistical plan → execute code → interpret results)
 
-STAGE 4  Revision ──────────────────────────────────────────────────────────────── [CP 4]
-         └─ Proofreader
+STAGE 4  Visualization ──────────────────────────────────────────────────────────── [CP 4]
+         (figure type selection → generate code → render → captions)
 
-[OUTPUT] Manuscript draft · Analysis code · Figure code · Figure captions
+STAGE 5  Paper Outline ──────────────────────────────────────────────────────────── [CP 5]
+         (key message → narrative arc → section-by-section blueprints)
+         Uses: Stage 2 synthesis + Stage 3 analysis + Stage 4 figures
+
+STAGE 6  Paper Draft ──────────────────────────────── [CP 6-1 … CP 6-6]
+         Methods → Results → Discussion → Conclusion → Introduction → Abstract
+
+STAGE 7  Peer Review ────────────────────────────────────────────────────────────── [CP 7]
+         Reviewer A (methods) ║ Reviewer B (clinical) ║ Reviewer C (writing)
+         └─ Review Synthesis (auto)
+
+STAGE 8  Paper Revision ─────────────────────────────────────────────────────────── [CP 8]
+         (address reviewer checklist → change log → response letter)
+
+STAGE 9  Proofreading ───────────────────────────────────────────────────────────── [CP 9]
+         (8 systematic checks → flag only, researcher decides every fix)
+
+[OUTPUT] Manuscript · Analysis code · Figure code · Figure captions · Response letter
 ```
+
+## Stage Dependencies
+
+- Stage 3 (Data Analysis) cannot start until Stage 2 (Literature) is complete
+  → Literature context informs statistical approach and interpretation
+- Stage 5 (Paper Outline) requires Stages 2 + 3 + 4 all complete
+  → Outline is informed by background, data, AND figures simultaneously
+- Stages proceed sequentially thereafter: 6 → 7 → 8 → 9
 
 ## Checkpoint Protocol
 
@@ -39,30 +62,22 @@ At every checkpoint the agent MUST:
 
 Never auto-proceed past a checkpoint.
 
-## Stage Dependencies
-
-- Stage 2 cannot start until Stage 1 checkpoints (1A, 1B, 1C) are all cleared
-- Story Writer reads confirmed figures + statistical interpretation from Stage 1
-- Section Writer (Results) directly references confirmed figures and statistics
-- Section Writer (Discussion) builds on Stage 1 interpretation
-- Abstract is always written last
-
 ## Skills
 
 ```
 .claude/skills/
-├── intake/             Stage 0:   scan input/, classify files, detect entry point
+├── intake/             Stage 1:   scan input/, classify files, detect entry point  [CP 1]
 ├── organize/           Any:       sort files from archive/ into correct stage dirs
-├── data-analysis/      Stage 1-A: explore → propose → execute → interpret
-├── visualization/      Stage 1-B: propose figure types → generate code → captions
-├── literature/         Stage 2-A: search + synthesize knowledge base
-├── story-writer/       Stage 2-B: key message → narrative arc → section outline
-├── section-writer/     Stage 2-C: draft one section at a time
-├── reviewer-a/         Stage 3:   methodology & statistical rigor
-├── reviewer-b/         Stage 3:   clinical relevance & translation
-├── reviewer-c/         Stage 3:   writing quality & logical flow
-├── revision/           Stage 4-A: targeted revision per checklist
-└── proofreader/        Stage 4-B: final consistency check
+├── literature/         Stage 2:   systematic search + knowledge synthesis          [CP 2]
+├── data-analysis/      Stage 3:   literature-informed analysis → interpret          [CP 3A/3B]
+├── visualization/      Stage 4:   figure type reasoning → code → captions          [CP 4]
+├── story-writer/       Stage 5:   key message → narrative arc → section outlines   [CP 5]
+├── section-writer/     Stage 6:   draft one section at a time                      [CP 6-1…6-6]
+├── reviewer-a/         Stage 7:   methodology & statistical rigor
+├── reviewer-b/         Stage 7:   clinical relevance & translation
+├── reviewer-c/         Stage 7:   writing quality & logical flow                   [CP 7]
+├── revision/           Stage 8:   targeted revision + response letter              [CP 8]
+└── proofreader/        Stage 9:   8-category final proofread                       [CP 9]
 ```
 
 ## Working Conventions
@@ -123,18 +138,18 @@ When intent is ambiguous, name the most likely skill and confirm: "It sounds lik
 ```
 autoresearch/
 ├── __init__.py          — ARSession, ARPipeline, WorkSpace exports
-├── session.py           — session state, checkpoint tracking, persistence
-├── pipeline.py          — checkpoint map, stage deps, progress helpers
-├── workspace.py         — file I/O for all session artifacts
-├── cli.py               — CLI: new / status / approve / run / export
+├── session.py           — session state, 15-checkpoint tracking, persistence
+├── pipeline.py          — 9-stage checkpoint map, deps, progress helpers
+├── workspace.py         — stage1…stage9 directory I/O
+├── cli.py               — CLI: intake / new / status / approve / run / export
 └── stages/
-    ├── data_analysis.py — Stage 1-A: code runner, CP 1A/1B formatting
-    ├── visualization.py — Stage 1-B: figure runner, CP 1C formatting
-    ├── literature.py    — Stage 2-A: PubMed search, synthesis, CP 2A
-    ├── writing.py       — Stage 2-B/C: story outline, section writer
-    ├── review.py        — Stage 3: review parser, auto-synthesis, CP 3
-    ├── revision.py      — Stage 4-A: change log, revision executor
-    └── proofreader.py   — Stage 4-B: 5-category checks, CP 4
+    ├── data_analysis.py — Stage 3: code runner, CP 3A/3B formatting
+    ├── visualization.py — Stage 4: figure runner, CP 4 formatting
+    ├── literature.py    — Stage 2: PubMed search, synthesis, CP 2
+    ├── writing.py       — Stage 5/6: outline, section writer, CP 5 / CP 6-x
+    ├── review.py        — Stage 7: review parser, auto-synthesis, CP 7
+    ├── revision.py      — Stage 8: change log, revision executor, CP 8
+    └── proofreader.py   — Stage 9: 8-category checks, CP 9
 ```
 
 ## CLI Quick Start
