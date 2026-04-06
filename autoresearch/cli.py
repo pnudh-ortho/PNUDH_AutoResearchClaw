@@ -216,7 +216,7 @@ def _run_proofread(session) -> None:
         expected_figure_count=n_figures,
     )
     report_text = format_cp4_report(report)
-    save_proofread_to_session(ws, report_text)
+    save_proofread_to_session(ws, report_text, session=session)
 
     print(f"\n✓ Proofreading complete: {len(report.issues)} issues found.")
     print(f"  Report: {ws.stage4_dir / 'proofread_report.md'}")
@@ -241,6 +241,85 @@ def _run_pubmed_search(session, args) -> None:
     print(f"  Saved to: {ws.literature_dir / 'search_log.md'}")
     print()
     print(formatted)
+
+
+def cmd_intake(args) -> None:
+    """
+    Scan input/[topic]/ and print the intake classification report.
+    Does NOT create a session or move files — that is done interactively
+    by the intake skill in Claude. This command is a helper for that skill.
+    """
+    from autoresearch.workspace import WorkSpace
+
+    input_root = Path("input")
+    if not input_root.exists():
+        print("Error: No 'input/' directory found at project root.", file=sys.stderr)
+        print("  Create: input/[your-study-name]/ and drop your files there.", file=sys.stderr)
+        sys.exit(1)
+
+    # Determine which topic folder to use
+    topic_name = getattr(args, "topic", None)
+    if topic_name:
+        topic_dir = input_root / topic_name
+        if not topic_dir.exists():
+            print(f"Error: input/{topic_name}/ not found.", file=sys.stderr)
+            sys.exit(1)
+    else:
+        subdirs = [d for d in input_root.iterdir() if d.is_dir()]
+        if not subdirs:
+            print("No topic folders found in input/.", file=sys.stderr)
+            print("  Create a folder: input/[your-study-name]/", file=sys.stderr)
+            sys.exit(1)
+        if len(subdirs) > 1:
+            print("Multiple topic folders found in input/:")
+            for d in sorted(subdirs):
+                files = list(d.rglob("*"))
+                n = sum(1 for f in files if f.is_file())
+                print(f"  {d.name}/  ({n} files)")
+            print("\nSpecify one: autoresearch intake [topic-name]")
+            sys.exit(0)
+        topic_dir = subdirs[0]
+
+    # Classify
+    classified = WorkSpace.classify_input_files(topic_dir)
+    entry_stage, reason, auto_clear = WorkSpace.determine_entry_point(classified)
+
+    LABELS = {
+        "raw_data":       "Raw data",
+        "analysis_output":"Analysis output",
+        "figure_image":   "Figure images",
+        "figure_code":    "Figure code",
+        "analysis_code":  "Analysis code",
+        "reference_pdf":  "Reference PDFs",
+        "bibliography":   "Bibliography",
+        "manuscript_draft":"Manuscript drafts",
+        "protocol_doc":   "Protocol/design docs",
+        "notes":          "Notes/context",
+        "unclear":        "Unclear (needs review)",
+    }
+
+    total = sum(len(v) for v in classified.values())
+    print(f"\n{'='*60}")
+    print(f"Intake Report — input/{topic_dir.name}/")
+    print(f"{'='*60}\n")
+    print(f"Files found: {total}\n")
+
+    for key, label in LABELS.items():
+        files = classified.get(key, [])
+        if files:
+            names = ", ".join(p.name for p in files)
+            print(f"  {label:<22} ({len(files)}): {names}")
+
+    print(f"\n{'─'*60}")
+    print(f"Recommended entry point: {entry_stage}")
+    print(f"Reason: {reason}")
+    if auto_clear:
+        print(f"\nCheckpoints to auto-clear (with researcher approval):")
+        for cp in auto_clear:
+            print(f"  CP {cp}")
+    print(f"{'─'*60}")
+    print(f"\nNext: load the intake skill in Claude and say 'start'")
+    print(f"      or run: autoresearch new --topic \"{topic_dir.name.replace('_', ' ').title()}\"\n")
 
 
 def cmd_sessions(args) -> None:
@@ -338,6 +417,16 @@ def build_parser() -> argparse.ArgumentParser:
     p_run.add_argument("--query", default="", help="Search query for pubmed")
     p_run.add_argument("--max-results", type=int, default=20)
 
+    # intake
+    p_intake = sub.add_parser(
+        "intake",
+        help="Scan input/[topic]/ and print the classification report (no files moved)",
+    )
+    p_intake.add_argument(
+        "topic", nargs="?", default=None,
+        help="Topic folder name under input/ (auto-detected if only one exists)",
+    )
+
     # sessions
     sub.add_parser("sessions", help="List all sessions")
 
@@ -358,6 +447,7 @@ def main() -> None:
         "approve":  cmd_approve,
         "revoke":   cmd_revoke,
         "run":      cmd_run,
+        "intake":   cmd_intake,
         "sessions": cmd_sessions,
         "export":   cmd_export,
     }

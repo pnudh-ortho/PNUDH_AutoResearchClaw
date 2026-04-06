@@ -33,6 +33,11 @@ if TYPE_CHECKING:
     from autoresearch.workspace import WorkSpace
 
 
+# ── module-level compiled patterns (avoid recompilation per call) ─────────────
+_ABBREV_PATTERN = re.compile(r'\b([A-Z]{2,6})\b')
+_DEFINITION_PATTERN = re.compile(r'([A-Za-z ]+)\s+\(([A-Z]{2,6})\)')
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Data structures
 # ──────────────────────────────────────────────────────────────────────────────
@@ -106,19 +111,14 @@ def check_abbreviations(manuscript: str) -> list[ProofreadingIssue]:
     or that are defined but never used, or used inconsistently.
     """
     issues = []
-    # Find all uppercase abbreviations (2-6 letters)
-    abbrev_pattern = re.compile(r'\b([A-Z]{2,6})\b')
-    # Find definitions: pattern "full name (ABBREV)"
-    definition_pattern = re.compile(r'([A-Za-z ]+)\s+\(([A-Z]{2,6})\)')
-
     defined: dict[str, int] = {}  # abbrev → position of definition
-    for m in definition_pattern.finditer(manuscript):
+    for m in _DEFINITION_PATTERN.finditer(manuscript):
         abbrev = m.group(2)
         if abbrev not in defined:
             defined[abbrev] = m.start()
 
     # Check for abbreviations used before definition
-    for m in abbrev_pattern.finditer(manuscript):
+    for m in _ABBREV_PATTERN.finditer(manuscript):
         abbrev = m.group(1)
         # Skip common non-abbreviations
         if abbrev in {"DNA", "RNA", "USA", "UK", "CT", "MRI", "BMI", "CI", "HR", "OR", "OR", "SD", "SEM"}:
@@ -225,10 +225,8 @@ def check_claim_language(
             continue
         section_text = match.group(1)
         for term in OVERCLAIMING_TERMS:
-            if re.search(r'\b' + re.escape(term) + r'\b', section_text, re.IGNORECASE):
-                # Find context
-                m = re.search(r'\b' + re.escape(term) + r'\b', section_text, re.IGNORECASE)
-                if m:
+            m = re.search(r'\b' + re.escape(term) + r'\b', section_text, re.IGNORECASE)
+            if m:
                     start = max(0, m.start() - 60)
                     context = section_text[start:m.start() + 60].replace("\n", " ")
                     qualifier = " / ".join(EXPLORATORY_QUALIFIERS[:3])
@@ -385,6 +383,10 @@ def format_cp4_report(report: ProofreadReport) -> str:
 def save_proofread_to_session(
     ws: "WorkSpace",
     report_text: str,
+    session: "ARSession | None" = None,
 ) -> None:
-    """Persist Stage 4-B proofread report."""
+    """Persist Stage 4-B proofread report to disk and session state."""
     ws.save_proofread_report(report_text)
+    if session is not None:
+        session.proofread_report = report_text
+        session.save()

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(cp /home/hyeonjin/PNUDH_AutoResearchClaw/outputs/CLAUDE.md /home/hyeonjin/PNUDH_AutoResearchClaw/CLAUDE.md)",
+      "Bash(mkdir -p /home/hyeonjin/PNUDH_AutoResearchClaw/.claude/skills/data-analysis)",
+      "Bash(cp /home/hyeonjin/PNUDH_AutoResearchClaw/outputs/SKILL.md /home/hyeonjin/PNUDH_AutoResearchClaw/.claude/skills/data-analysis/SKILL.md)",
+      "Bash(cp /home/hyeonjin/PNUDH_AutoResearchClaw/outputs/pipeline_design.md /home/hyeonjin/PNUDH_AutoResearchClaw/docs/pipeline_design.md)",
+      "Bash(cp /home/hyeonjin/PNUDH_AutoResearchClaw/outputs/decisions.md /home/hyeonjin/PNUDH_AutoResearchClaw/docs/decisions.md)",
+      "Bash(grep -r \"def run_\" autoresearch/stages/*.py)",
+      "Bash(python3 -m py_compile autoresearch/stages/visualization.py autoresearch/stages/data_analysis.py autoresearch/stages/review.py)",
+      "Bash(grep:*)",
+      "Bash(python:*)",
+      "Bash(autoresearch intake:*)"
+    ]
+  }
+}

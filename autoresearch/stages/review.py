@@ -65,6 +65,8 @@ class ParsedReview:
 # Review parsing
 # ──────────────────────────────────────────────────────────────────────────────
 
+MAX_STRENGTHS_IN_REPORT = 10  # cap strengths list for readability
+
 _SEVERITY_PATTERNS = {
     "major":    re.compile(r"###\s*Major\s+Concerns?", re.IGNORECASE),
     "minor":    re.compile(r"###\s*Minor\s+Concerns?", re.IGNORECASE),
@@ -309,7 +311,7 @@ def format_cp3_synthesis(synthesis: dict) -> str:
     # Strengths
     if strengths:
         lines += ["---", "", "### Strengths Noted by Reviewers", ""]
-        for s in strengths[:10]:  # cap at 10 for readability
+        for s in strengths[:MAX_STRENGTHS_IN_REPORT]:
             lines.append(f"- {s}")
         lines.append("")
 

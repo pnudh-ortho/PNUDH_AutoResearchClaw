@@ -99,6 +99,13 @@ class ARSession:
     # Revision
     change_log: list[dict] = field(default_factory=list)
     items_not_addressed: list[dict] = field(default_factory=list)
+    # Stage 4-B
+    proofread_report: str = ""
+
+    # ── intake metadata ──────────────────────────────────────────────────
+    # Set by the intake skill (Stage 0) so later sessions know their origin
+    source_input_dir: str = ""      # e.g. "input/obesity_treatment"
+    intake_entry_point: str = ""    # e.g. "Stage 1-A", "Stage 1-C", "Stage 2-A"
 
     # ──────────────────────────────────────────────────────────────────────
     # Construction
@@ -165,6 +172,12 @@ class ARSession:
         return session
 
     @classmethod
+    def _from_json_file(cls, path: Path) -> "ARSession":
+        """Load a session from a session.json file path."""
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return cls(**data)
+
+    @classmethod
     def load(cls, identifier: str | Path, sessions_root: Path | None = None) -> "ARSession":
         """
         Load a session by session_id string or by direct path to session.json
@@ -176,15 +189,13 @@ class ARSession:
         if path.exists():
             if path.is_dir():
                 path = path / "session.json"
-            data = json.loads(path.read_text(encoding="utf-8"))
-            return cls(**data)
+            return cls._from_json_file(path)
 
         # Lookup by session_id string under sessions_root
         root = sessions_root or _DEFAULT_SESSIONS_ROOT
         candidate = root / str(identifier) / "session.json"
         if candidate.exists():
-            data = json.loads(candidate.read_text(encoding="utf-8"))
-            return cls(**data)
+            return cls._from_json_file(candidate)
 
         raise FileNotFoundError(f"No session found for identifier: {identifier!r}")
 
@@ -199,19 +210,18 @@ class ARSession:
         )
         if not candidates:
             raise FileNotFoundError(f"No sessions found in {root}")
-        data = json.loads(candidates[0].read_text(encoding="utf-8"))
-        return cls(**data)
+        return cls._from_json_file(candidates[0])
 
     @classmethod
     def list_all(cls, sessions_root: Path | None = None) -> list["ARSession"]:
+        import sys as _sys
         root = sessions_root or _DEFAULT_SESSIONS_ROOT
         sessions = []
         for p in sorted(root.glob("*/session.json"), key=lambda x: x.stat().st_mtime, reverse=True):
             try:
-                data = json.loads(p.read_text(encoding="utf-8"))
-                sessions.append(cls(**data))
-            except Exception:
-                pass
+                sessions.append(cls._from_json_file(p))
+            except Exception as e:
+                print(f"Warning: skipped corrupted session at {p}: {e}", file=_sys.stderr)
         return sessions
 
     # ──────────────────────────────────────────────────────────────────────

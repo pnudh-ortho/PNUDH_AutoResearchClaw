@@ -1,162 +1,218 @@
-# Skill: Archive Organizer
+---
+name: organize
+description: >
+  Classify and move files from a session's archive/ folder into the correct stage directories.
+  Also handles files dropped directly into input/[topic]/ at the project root (secondary intake).
+  After organizing, reports what was found and suggests the next pipeline action.
+  Triggers on: "정리해줘", "파일 정리", "organize", "sort files", "archive 정리",
+  or when new files appear in archive/ during an active session.
+metadata:
+  category: pipeline
+  trigger-keywords: "organize,sort,archive,정리,files,move,classify,stage,intake"
+  applicable-stages: "any"
+  priority: "0"
+  version: "2.0"
+  author: autoresearch
+---
 
-Organize files from a session's `archive/` folder into the correct stage directories.
+# Organize — Archive File Sorter
 
-## Trigger
-
-This skill activates when the user says any of:
-- "archive 정리해줘" / "정리해줘" / "파일 정리"
-- "organize archive" / "sort files"
-- "archive 폴더 정리"
+**Classify and move files from archive/ into the correct session stage directories.
+Show the plan first. Move only after [OK]. Never delete. Never overwrite without asking.**
 
 ---
 
-## Step 1 — Locate the session and archive
+## Context to Load Before Starting
 
-Run `autoresearch status` to find the active session and its workspace path.
-
-The archive directory is at:
-```
-sessions/<session-id>/archive/
-```
-
-List all files in archive/ (excluding README.md).  
-If the archive is empty, tell the user and stop.
+1. Run `autoresearch status` — find the active session ID and workspace path.
+2. The archive directory is at: `sessions/[id]/archive/`
+3. List all files in archive/ excluding README.md.
+4. If archive/ is empty: "Archive is empty. No files to organize." — stop.
 
 ---
 
-## Step 2 — Classify each file
+## Step 1 — Classify Each File
 
-For every file in archive/, determine the destination using these rules:
+For every file in archive/, determine the correct destination using the rules below.
 
-### By extension (automatic)
+### By Extension (automatic)
 
-| Extension | Destination | Reason |
+| Extension | Default destination | Reason |
 |---|---|---|
-| `.csv`, `.tsv`, `.xlsx`, `.xls` | `input/` | Raw data |
-| `.pdf` | `input/` | Reference paper |
-| `.bib` | `stage2/literature/` | Bibliography |
-| `.png`, `.jpg`, `.jpeg`, `.svg`, `.tiff`, `.tif` | `stage1/figures/` | Figure image |
-| `.docx` | `input/` | Document (data or ref) |
+| `.csv`, `.tsv` | `input/` | Raw tabular data |
+| `.xlsx`, `.xls` | Inspect (see below) | Could be raw data or analysis output |
+| `.pdf` | Inspect (see below) | Could be reference paper or figure |
+| `.bib`, `.ris`, `.nbib` | `stage2/literature/included_papers.bib` | Bibliography |
+| `.png`, `.jpg`, `.jpeg`, `.tiff`, `.svg` | `stage1/figures/` | Figure image |
+| `.docx`, `.doc` | Inspect (see below) | Could be manuscript draft or protocol |
+| `.py` | Inspect (see below) | Analysis code or figure code |
+| `.R`, `.r`, `.Rmd` | Inspect (see below) | Analysis code or figure code |
+| `.txt`, `.log`, `.html` | Inspect (see below) | Analysis output or notes |
+| `.sav`, `.sas7bdat`, `.dta` | `input/` | SPSS / SAS / Stata raw data |
+| `.json` | Inspect (see below) | Analysis output or config |
 
-### By extension + content inspection
+### Content Inspection Rules (read first 30–50 lines)
 
-**`.py` files** — read first 20 lines:
-- Contains `matplotlib`, `seaborn`, `plt.`, `sns.`, `fig,`, `ax` → `stage1/figures/`
+**`.xlsx` / `.xls`**:
+- If column headers include `p`, `p-value`, `p_val`, `OR`, `HR`, `CI`, `coefficient`, `β`, `mean ± SD`, `effect` → `stage1/analysis/analysis_results.txt` equivalent — save as `stage1/analysis/[filename]`
+- Otherwise → `input/` (raw data)
+
+**`.pdf`**:
+- If first page contains: author names, journal name, DOI, year in citation format → `input/` (reference paper)
+- If filename suggests figure (e.g., `fig1_`, `figure_`, `Figure_`) → `stage1/figures/`
+- Otherwise → `input/` (unknown — flag as UNCLEAR)
+
+**`.py`**:
+- If contains `matplotlib`, `seaborn`, `plt.`, `sns.`, `fig,`, `ax =`, `subplots` → `stage1/figures/`
 - Otherwise → `stage1/analysis/`
 
-**`.R` files** — read first 20 lines:
-- Contains `ggplot`, `plot(`, `hist(`, `barplot(` → `stage1/figures/`
+**`.R` / `.Rmd`**:
+- If contains `ggplot`, `plot(`, `hist(`, `barplot(`, `geom_` → `stage1/figures/`
 - Otherwise → `stage1/analysis/`
 
-**`.txt` files** — read first 30 lines:
-- Contains `p =`, `p<`, `t(`, `F(`, `χ²`, `df =`, `CI`, `mean`, `SD`, `median` → `stage1/analysis/` (statistics output)
-- Otherwise → `input/`
+**`.txt` / `.log`**:
+- If contains `p =`, `p<`, `t(`, `F(`, `χ²`, `U =`, `df =`, `95% CI`, `mean =`, `SD =`, `OR =`, `HR =` → `stage1/analysis/analysis_results.txt` (append or save as named file)
+- Otherwise → `input/` (notes / context)
 
-**`.json` files**:
-- Contains `"figure"`, `"plot"`, `"chart"` keys → `stage1/figures/`
+**`.docx` / `.doc`**:
+- If contains section headers matching `## Methods`, `## Results`, `# Introduction`, `## Discussion`, `## Conclusion`, `## Abstract` → classify each matching section (see .md rules below)
+- Otherwise → `input/` (protocol, notes, or other context)
+
+**`.json`**:
+- If contains `"figure"`, `"plot"`, `"chart"`, `"axes"` keys → `stage1/figures/`
 - Otherwise → `stage1/analysis/`
 
-### By filename (for `.md` files)
-
-Match the filename (case-insensitive) against these patterns:
+**`.md` files** — match filename (case-insensitive):
 
 | Filename pattern | Destination |
 |---|---|
 | `reviewer_a*`, `review_a*`, `*_a.md` | `stage3/reviewer_a.md` |
 | `reviewer_b*`, `review_b*`, `*_b.md` | `stage3/reviewer_b.md` |
 | `reviewer_c*`, `review_c*`, `*_c.md` | `stage3/reviewer_c.md` |
-| `synthesis*` | `stage3/synthesis.md` |
+| `synthesis*`, `review_synthesis*` | `stage3/synthesis.md` |
 | `methods*`, `method*` | `stage2/manuscript/methods.md` |
 | `results*`, `result*` | `stage2/manuscript/results.md` |
 | `discussion*` | `stage2/manuscript/discussion.md` |
 | `conclusion*` | `stage2/manuscript/conclusion.md` |
 | `introduction*`, `intro*` | `stage2/manuscript/introduction.md` |
 | `abstract*` | `stage2/manuscript/abstract.md` |
-| `outline*`, `story*`, `narrative*` | `stage2/story/` |
+| `outline*`, `story*`, `narrative*`, `arc*` | `stage2/story/outline.md` |
 | `key_message*` | `stage2/story/key_message.md` |
-| `literature*`, `search*` | `stage2/literature/` |
+| `literature*`, `synthesis*`, `search*` | `stage2/literature/` |
 | `interpretation*` | `stage1/analysis/interpretation.md` |
 | `analysis_plan*`, `plan*` | `stage1/analysis/analysis_plan.md` |
 | `change_log*`, `changelog*` | `stage4/change_log.md` |
-| `proofread*` | `stage4/proofread_report.md` |
+| `revision_checklist*` | `stage4/revision_checklist.md` |
+| `revised_manuscript*` | `stage4/revised_manuscript.md` |
+| `proofread*`, `proofreading*` | `stage4/proofread_report.md` |
+| `response_letter*`, `rebuttal*` | `stage4/response_letter.md` |
 
 ---
 
-## Step 3 — Handle ambiguous files
+## Step 2 — Handle Ambiguous Files
 
-Files that don't match any rule above are **ambiguous**. For each one:
-- Show the filename and first 3 lines of content (if text)
-- List the possible destinations
-- Ask the user which folder to use
+Files matching no rule above are **UNCLEAR**. For each:
+- Show the filename
+- Show the first 3 lines of content (if text file)
+- List the 2–3 most likely destinations
+- Do NOT guess — ask the researcher
 
-Collect all ambiguous files first, then ask in one batch — don't ask one-by-one.
-
----
-
-## Step 4 — Present the plan
-
-Before moving anything, show a table:
+Collect ALL ambiguous files before asking. Ask in one batch:
 
 ```
-파일 정리 계획
-──────────────────────────────────────────────────────
-  patient_data.csv       →  input/
-  smith2023.pdf          →  input/
-  fig1_boxplot.py        →  stage1/figures/
-  analysis_code.py       →  stage1/analysis/
-  results_output.txt     →  stage1/analysis/
-  references.bib         →  stage2/literature/
-  reviewer_a.md          →  stage3/reviewer_a.md
-──────────────────────────────────────────────────────
-총 7개 파일
+Ambiguous files — please specify destination for each:
 
-이대로 이동할까요?  [OK] / [수정: ...]
+1. study_notes.docx
+   Content preview: "Patient selection criteria: aged 18-65, diagnosed with..."
+   Options: (A) input/ — protocol/context   (B) stage2/manuscript/methods.md
+   Your choice for each? [A/B/other path]
+```
+
+---
+
+## Step 3 — Present the Plan
+
+Show a formatted plan before moving anything:
+
+```
+File Organization Plan
+──────────────────────────────────────────────────────────
+  patient_data.csv            →  input/
+  lab_results.xlsx            →  input/
+  smith2023.pdf               →  input/
+  spss_output.txt             →  stage1/analysis/analysis_results.txt
+  fig1_boxplot.py             →  stage1/figures/
+  reviewer_a.md               →  stage3/reviewer_a.md
+  references.bib              →  stage2/literature/included_papers.bib
+──────────────────────────────────────────────────────────
+  7 files to move
+  0 ambiguous (resolved above)
+
+Conflicts detected (file already exists at destination):
+  ⚠ stage3/reviewer_a.md already exists — overwrite or skip?
+
+Proceed?  [OK] / [EDIT: filename → new destination] / [SKIP: filename]
 ```
 
 Wait for `[OK]` before proceeding.
 
 ---
 
-## Step 5 — Execute
+## Step 4 — Execute
 
 For each file in the approved plan:
-1. Check if destination file already exists
-   - If yes: tell the user and ask whether to overwrite or skip
-2. Move the file using `mv` (Bash tool):
-   ```bash
-   mv "sessions/<id>/archive/<filename>" "sessions/<id>/<destination>"
-   ```
-3. Track successes and any failures
+
+1. **Check if destination file already exists**:
+   - If yes and user did not approve overwrite: skip and report
+   - If yes and user approved overwrite: back up existing file as `[filename].bak` first, then overwrite
+2. **Create destination directory if needed**: `mkdir -p path/to/dir`
+3. **Move the file**: `mv "sessions/[id]/archive/[file]" "sessions/[id]/[destination]"`
+4. Track results
 
 ---
 
-## Step 6 — Report
+## Step 5 — Report and Next Action
 
-After all moves are complete, print a summary:
+After completing all moves:
 
 ```
-✓ 정리 완료
+✓ Organization complete
 
-이동됨 (7):
-  ✓ patient_data.csv       →  input/
-  ✓ smith2023.pdf          →  input/
-  ✓ fig1_boxplot.py        →  stage1/figures/
-  ...
+Moved (7):
+  ✓ patient_data.csv        →  input/
+  ✓ smith2023.pdf           →  input/
+  ✓ spss_output.txt         →  stage1/analysis/analysis_results.txt
+  ✓ fig1_boxplot.py         →  stage1/figures/
+  ✓ reviewer_a.md           →  stage3/reviewer_a.md
+  ✓ references.bib          →  stage2/literature/included_papers.bib
 
-건너뜀 (0):
+Skipped (1):
+  ✗ fig2_scatter.py         →  [already exists at destination, not overwritten]
 
-archive/ 폴더가 비어 있습니다. 다음 단계로 진행하세요.
+Remaining in archive/ (0): —
 ```
 
-If any files remain in archive/ (skipped or failed), list them.
+**Next action suggestion** — based on what was just organized and current session state:
+
+```
+Suggested next steps based on what was organized:
+
+1. reviewer_a.md added to stage3/ → check if all 3 reviews are now present:
+   run `autoresearch run synthesis` if reviewer_b.md and reviewer_c.md also exist.
+
+2. analysis_results.txt moved → Stage 1-B can now be completed:
+   Load data-analysis skill to interpret the results.
+```
+
+Show 1–3 concrete suggestions. Do not prescribe — the researcher decides.
 
 ---
 
 ## Rules
 
 - **Never delete** files from archive/ — always move (not copy-then-delete)
-- **Never overwrite** without asking
-- If a destination directory doesn't exist, create it before moving
-- Do not move `README.md` from archive/
-- After organizing, run `autoresearch status` and show the updated workspace
+- **Never overwrite** without explicit per-file confirmation
+- **Never move README.md** from archive/
+- **If destination directory doesn't exist**: create it before moving
+- **After organizing**: always run `autoresearch status` and show updated workspace summary
+- **One batch of ambiguous questions** — do not ask file-by-file

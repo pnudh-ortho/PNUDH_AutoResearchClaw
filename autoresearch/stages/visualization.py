@@ -16,6 +16,7 @@ This module provides:
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -131,7 +132,7 @@ def run_figure_script(
             text=True,
             timeout=timeout,
             cwd=str(data_dir),
-            env={**__import__("os").environ, "MPLBACKEND": "Agg"},  # headless matplotlib
+            env={**os.environ, "MPLBACKEND": "Agg"},  # headless matplotlib
         )
         return FigureRunResult(result.stdout, result.stderr, result.returncode, script_path)
     except subprocess.TimeoutExpired:
