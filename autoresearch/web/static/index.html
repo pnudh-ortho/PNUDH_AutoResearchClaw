@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoResearch</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+/* ── CSS Variables ─────────────────────────────────────────── */
+:root {
+  --bg:           #ffffff;
+  --bg2:          #f5f5f5;
+  --bg3:          #ebebeb;
+  --sidebar:      #f0f0f0;
+  --sidebar-item: #e4e6f0;
+  --text:         #1a1a1a;
+  --text2:        #555555;
+  --text3:        #888888;
+  --border:       #dcdcdc;
+  --accent:       #0066cc;
+  --accent2:      #e8f0fb;
+  --accent-text:  #ffffff;
+  --success:      #1a7f37;
+  --success-bg:   #dcfce7;
+  --warn:         #9a6700;
+  --warn-bg:      #fff8c5;
+  --danger:       #cf222e;
+  --danger-bg:    #ffebe9;
+  --input-bg:     #ffffff;
+  --input-border: #b8b8b8;
+  --shadow:       0 1px 4px rgba(0,0,0,.10);
+  --radius:       6px;
+  --toggle:       #0066cc;
+}
+[data-theme="dark"] {
+  --bg:           #1e1e1e;
+  --bg2:          #252526;
+  --bg3:          #2d2d2d;
+  --sidebar:      #252526;
+  --sidebar-item: #37373d;
+  --text:         #cccccc;
+  --text2:        #9a9a9a;
+  --text3:        #666666;
+  --border:       #3d3d3d;
+  --accent:       #4da6ff;
+  --accent2:      #1e2d42;
+  --accent-text:  #ffffff;
+  --success:      #3fb950;
+  --success-bg:   #1b3a26;
+  --warn:         #d29922;
+  --warn-bg:      #2e2614;
+  --danger:       #f85149;
+  --danger-bg:    #3d1a1a;
+  --input-bg:     #3c3c3c;
+  --input-border: #5a5a5a;
+  --shadow:       0 1px 4px rgba(0,0,0,.4);
+  --toggle:       #4da6ff;
+}
+
+/* ── Reset & Base ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  overflow: hidden;
+}
+a { color: var(--accent); text-decoration: none; }
+button { cursor: pointer; font: inherit; }
+
+/* ── Layout ────────────────────────────────────────────────── */
+#sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+#main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ── Sidebar ───────────────────────────────────────────────── */
+.sidebar-header {
+  padding: 16px 16px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sidebar-logo svg { opacity: .8; }
+
+.project-selector {
+  margin-top: 10px;
+  position: relative;
+}
+.project-selector select {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius);
+  background: var(--input-bg);
+  color: var(--text);
+  font: inherit;
+  appearance: none;
+  cursor: pointer;
+}
+.project-selector::after {
+  content: "▾";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--text3);
+  font-size: 11px;
+}
+
+.sidebar-section { padding: 8px 0; }
+.sidebar-section-label {
+  padding: 4px 16px 2px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--text3);
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 16px;
+  cursor: pointer;
+  border-radius: 0;
+  color: var(--text2);
+  transition: background .12s, color .12s;
+  user-select: none;
+  font-size: 13px;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active { background: var(--sidebar-item); color: var(--accent); font-weight: 600; }
+.nav-item .icon { font-size: 15px; width: 18px; text-align: center; }
+.nav-item .badge {
+  margin-left: auto;
+  background: var(--accent);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 1px 6px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dark-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text3);
+  font-size: 12px;
+  cursor: pointer;
+}
+.toggle-switch {
+  width: 32px;
+  height: 18px;
+  background: var(--border);
+  border-radius: 9px;
+  position: relative;
+  transition: background .2s;
+  cursor: pointer;
+}
+.toggle-switch.on { background: var(--toggle); }
+.toggle-switch::after {
+  content: "";
+  position: absolute;
+  width: 14px; height: 14px;
+  background: white;
+  border-radius: 50%;
+  top: 2px; left: 2px;
+  transition: left .2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.toggle-switch.on::after { left: 16px; }
+
+/* ── Panel ─────────────────────────────────────────────────── */
+.panel { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+.panel.active { display: flex; }
+
+.panel-header {
+  padding: 16px 24px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+.panel-title { font-size: 17px; font-weight: 700; }
+.panel-subtitle { color: var(--text3); font-size: 12px; margin-top: 2px; }
+.panel-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+/* ── Config Panel ──────────────────────────────────────────── */
+.config-search {
+  position: sticky;
+  top: -20px;
+  margin: -20px -24px 16px;
+  padding: 10px 24px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  z-index: 10;
+}
+.config-search input {
+  width: 100%;
+  padding: 7px 12px 7px 32px;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius);
+  background: var(--input-bg);
+  color: var(--text);
+  font: inherit;
+}
+.config-search-wrap { position: relative; }
+.config-search-wrap::before {
+  content: "⌕";
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text3);
+  font-size: 15px;
+}
+
+.settings-group { margin-bottom: 24px; }
+.settings-group-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--text3);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+.setting-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 16px;
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-row:hover { background: var(--bg2); margin: 0 -8px; padding-left: 8px; padding-right: 8px; border-radius: 4px; }
+.setting-meta { flex: 1; min-width: 0; }
+.setting-label { font-weight: 600; font-size: 13px; color: var(--text); }
+.setting-desc { font-size: 12px; color: var(--text3); margin-top: 2px; line-height: 1.4; }
+.setting-input-col { width: 240px; flex-shrink: 0; }
+
+.setting-row input[type="text"],
+.setting-row input[type="number"],
+.setting-row select,
+.setting-row textarea {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius);
+  background: var(--input-bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+}
+.setting-row textarea { resize: vertical; min-height: 72px; line-height: 1.4; }
+.setting-row input:focus,
+.setting-row select:focus,
+.setting-row textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent2);
+}
+
+.inline-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.check-group { display: flex; flex-direction: column; gap: 6px; }
+.check-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.check-item input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; }
+
+.tags-input { display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+  border: 1px solid var(--input-border); border-radius: var(--radius);
+  background: var(--input-bg); padding: 4px 6px; min-height: 34px; }
+.tag { background: var(--accent2); color: var(--accent); border-radius: 4px;
+  padding: 2px 6px; font-size: 12px; display: flex; align-items: center; gap: 4px; }
+.tag-del { cursor: pointer; opacity: .6; font-size: 14px; line-height: 1; }
+.tag-del:hover { opacity: 1; }
+.tags-input input { border: none; outline: none; background: transparent;
+  color: var(--text); font: inherit; font-size: 12px; min-width: 80px; flex: 1; }
+
+.word-limits-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.wl-item label { font-size: 11px; color: var(--text3); display: block; margin-bottom: 2px; }
+.wl-item input { width: 100%; padding: 4px 6px; border: 1px solid var(--input-border);
+  border-radius: 4px; background: var(--input-bg); color: var(--text); font: inherit; }
+
+.save-bar {
+  padding: 10px 24px;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.save-hint { font-size: 12px; color: var(--text3); }
+.save-hint.dirty { color: var(--warn); }
+
+/* ── Backgrounds Panel ─────────────────────────────────────── */
+.folder-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 0 24px;
+  gap: 12px;
+}
+.folder-icon-btn {
+  width: 96px; height: 96px;
+  background: var(--bg2);
+  border: 2px dashed var(--border);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.folder-icon-btn:hover { border-color: var(--accent); background: var(--accent2); }
+.folder-path {
+  font-size: 12px;
+  color: var(--text3);
+  font-family: "Consolas", monospace;
+  background: var(--bg2);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+.folder-actions { display: flex; gap: 8px; }
+
+.file-list { margin-top: 4px; }
+.file-list-header {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .7px; color: var(--text3); padding-bottom: 6px;
+  border-bottom: 1px solid var(--border); margin-bottom: 4px;
+}
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.file-item:last-child { border-bottom: none; }
+.file-name { flex: 1; color: var(--text); font-family: monospace; }
+.file-size { color: var(--text3); }
+.file-open { color: var(--accent); cursor: pointer; }
+.file-open:hover { text-decoration: underline; }
+
+.empty-hint {
+  text-align: center;
+  padding: 32px;
+  color: var(--text3);
+  font-size: 13px;
+}
+
+/* ── Pipeline Panel ────────────────────────────────────────── */
+.pipeline-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.session-select { flex: 1; }
+.session-select select {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius);
+  background: var(--input-bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.progress-bar-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+.progress-track {
+  height: 6px;
+  background: var(--bg3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width .4s ease;
+}
+.progress-next {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text3);
+}
+.progress-next .skill-pill {
+  display: inline-block;
+  background: var(--accent2);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-left: 4px;
+}
+
+.stage-group { margin-bottom: 16px; }
+.stage-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--text3);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.stage-num {
+  background: var(--bg3);
+  color: var(--text2);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+}
+
+.cp-row {
+  display: grid;
+  grid-template-columns: 42px 18px 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 5px;
+  margin-bottom: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  transition: background .1s;
+}
+.cp-row:hover { background: var(--bg2); }
+.cp-row.cleared { background: var(--success-bg); border-color: transparent; }
+.cp-row.blocked { opacity: .5; }
+
+.cp-id {
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--text2);
+  font-family: monospace;
+}
+.cp-icon { font-size: 14px; text-align: center; }
+.cp-body { min-width: 0; }
+.cp-desc { font-size: 12px; color: var(--text2); }
+.cp-row.cleared .cp-desc { color: var(--success); }
+.cp-meta { display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap; }
+.cp-note { font-size: 11px; color: var(--text3); font-style: italic; }
+.cp-skill {
+  font-size: 10px; color: var(--text3);
+  background: var(--bg3); border-radius: 3px;
+  padding: 1px 5px; font-family: monospace;
+}
+.cp-blocked-txt { font-size: 10px; color: var(--danger); }
+
+.cp-run-col { display: flex; justify-content: flex-end; }
+.cp-approve-col { display: flex; gap: 4px; justify-content: flex-end; }
+
+.run-section {
+  margin-top: 20px;
+  padding: 14px 16px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.run-section-title {
+  font-size: 12px; font-weight: 700; color: var(--text2);
+  margin-bottom: 10px;
+}
+.run-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.no-session-msg {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text3);
+}
+.no-session-msg .big { font-size: 36px; margin-bottom: 12px; }
+.no-session-msg p { font-size: 13px; line-height: 1.6; }
+
+/* ── Buttons ───────────────────────────────────────────────── */
+.btn {
+  padding: 5px 12px;
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  transition: opacity .12s, filter .12s;
+  white-space: nowrap;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn:active { filter: brightness(.95); }
+.btn-primary { background: var(--accent); color: white; }
+.btn-secondary { background: var(--bg3); color: var(--text); border-color: var(--border); }
+.btn-success { background: var(--success); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-sm { padding: 3px 8px; font-size: 11px; }
+.btn-icon { padding: 4px 8px; }
+.btn:disabled { opacity: .4; cursor: not-allowed; filter: none; }
+
+/* ── Result / Output overlay ───────────────────────────────── */
+.output-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.output-modal.open { display: flex; }
+.output-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  width: min(720px, 90vw);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0,0,0,.25);
+}
+.output-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+}
+.output-box-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px;
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--text);
+}
+.output-box-body.markdown { font-family: inherit; white-space: normal; }
+.output-box-body.markdown h1,
+.output-box-body.markdown h2,
+.output-box-body.markdown h3 { margin: 12px 0 6px; font-size: 14px; }
+.output-box-body.markdown p { margin-bottom: 8px; }
+.output-box-body.markdown ul { padding-left: 20px; margin-bottom: 8px; }
+.output-box-body.markdown code { background: var(--bg2); padding: 1px 4px; border-radius: 3px; font-family: monospace; }
+.output-box-footer { padding: 10px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ── Toast ─────────────────────────────────────────────────── */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: var(--bg);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  z-index: 200;
+  opacity: 0;
+  transition: opacity .2s;
+  pointer-events: none;
+}
+#toast.show { opacity: 1; }
+
+/* ── Note modal ────────────────────────────────────────────── */
+.note-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  z-index: 150;
+  align-items: center;
+  justify-content: center;
+}
+.note-modal.open { display: flex; }
+.note-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  width: 380px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.2);
+}
+.note-box h3 { margin-bottom: 10px; font-size: 14px; }
+.note-box input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius);
+  background: var(--input-bg);
+  color: var(--text);
+  font: inherit;
+  margin-bottom: 12px;
+}
+.note-box-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ── New session modal ─────────────────────────────────────── */
+.new-session-btn { font-size: 12px; }
+
+/* ── Claude output markdown ────────────────────────────────────── */
+.claude-md-block { font-family: inherit; white-space: normal; font-size: 13px; line-height: 1.6; }
+.claude-md-block h1,.claude-md-block h2,.claude-md-block h3 { font-size: 14px; font-weight: 700; margin: 10px 0 4px; }
+.claude-md-block p { margin-bottom: 8px; }
+.claude-md-block ul,.claude-md-block ol { padding-left: 18px; margin-bottom: 8px; }
+.claude-md-block code { background: var(--bg3); padding: 1px 4px; border-radius: 3px; font-family: monospace; font-size: 12px; }
+.claude-md-block pre { background: var(--bg3); padding: 10px 12px; border-radius: 6px; overflow-x: auto; margin: 8px 0; }
+.claude-md-block pre code { background: none; padding: 0; }
+.claude-md-block blockquote { border-left: 3px solid var(--accent); padding-left: 10px; color: var(--text2); margin: 6px 0; }
+.claude-md-block strong { font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ── Sidebar ────────────────────────────────────────────────────── -->
+<aside id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+      </svg>
+      AutoResearch
+    </div>
+    <div class="project-selector">
+      <select id="project-select" onchange="onProjectChange(this.value)">
+        <option value="">— 프로젝트 선택 —</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:6px;font-size:12px" onclick="newProject()">+ 새 프로젝트</button>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">작업공간</div>
+    <div class="nav-item active" data-panel="config" onclick="showPanel('config',this)">
+      <span class="icon">⚙</span> Configurations
+    </div>
+    <div class="nav-item" data-panel="backgrounds" onclick="showPanel('backgrounds',this)">
+      <span class="icon">📁</span> Backgrounds
+    </div>
+    <div class="nav-item" data-panel="pipeline" onclick="showPanel('pipeline',this)">
+      <span class="icon">🔬</span> Pipeline
+      <span class="badge" id="cp-badge" style="display:none"></span>
+    </div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="dark-toggle" onclick="toggleDark()">
+      <span id="dark-label">🌙 Dark</span>
+      <div class="toggle-switch" id="dark-switch"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── Main ───────────────────────────────────────────────────────── -->
+<div id="main">
+
+  <!-- Config Panel -->
+  <div class="panel active" id="panel-config">
+    <div class="panel-header">
+      <div class="panel-title">Configurations</div>
+      <div class="panel-subtitle">config.[project-name].yaml 편집 — VS Code Settings 스타일</div>
+    </div>
+    <div class="panel-body" id="config-body">
+      <div class="config-search">
+        <div class="config-search-wrap">
+          <input type="text" id="config-search" placeholder="설정 검색..." oninput="filterSettings(this.value)">
+        </div>
+      </div>
+      <div id="settings-container"></div>
+    </div>
+    <div class="save-bar">
+      <span class="save-hint" id="save-hint">저장된 상태</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary" onclick="resetConfig()">되돌리기</button>
+        <button class="btn btn-primary" id="save-btn" onclick="saveConfig()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Backgrounds Panel -->
+  <div class="panel" id="panel-backgrounds">
+    <div class="panel-header">
+      <div class="panel-title">Backgrounds</div>
+      <div class="panel-subtitle">프로젝트 입력 파일 — input/[project-name]/ 폴더</div>
+    </div>
+    <div class="panel-body">
+      <div class="folder-section">
+        <div class="folder-icon-btn" id="folder-icon" onclick="openFolder()" title="클릭하여 탐색기에서 열기">📂</div>
+        <div class="folder-path" id="folder-path">프로젝트를 선택하세요</div>
+        <div class="folder-actions">
+          <button class="btn btn-secondary" onclick="createFolder()">폴더 만들기</button>
+          <button class="btn btn-primary" onclick="openFolder()">탐색기에서 열기</button>
+        </div>
+        <div style="font-size:12px;color:var(--text3);text-align:center;max-width:300px;line-height:1.5">
+          폴더 아이콘을 클릭하거나 탐색기에서 파일을 끌어다 놓으세요.<br>
+          파일 분류는 Pipeline → Run Intake에서 실행합니다.
+        </div>
+      </div>
+      <div class="file-list">
+        <div class="file-list-header">파일 목록 <span id="file-count" style="font-weight:400;color:var(--text3)"></span></div>
+        <div id="file-items"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pipeline Panel -->
+  <div class="panel" id="panel-pipeline">
+    <div class="panel-header">
+      <div class="panel-title">Pipeline</div>
+      <div class="panel-subtitle">9-Stage · 15 Checkpoints · 체크포인트 승인 및 자동화 실행</div>
+    </div>
+    <div class="panel-body" id="pipeline-body">
+      <div class="pipeline-top">
+        <div class="session-select">
+          <select id="session-select" onchange="loadPipeline(this.value)">
+            <option value="">— 세션 선택 —</option>
+          </select>
+        </div>
+        <button class="btn btn-secondary new-session-btn" onclick="showNewSession()">+ 새 세션</button>
+        <button class="btn btn-secondary btn-sm" onclick="refreshPipeline()" title="새로고침">↻</button>
+      </div>
+      <div id="pipeline-content"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Output Modal ────────────────────────────────────────────────── -->
+<div class="output-modal" id="output-modal" onclick="closeOutputModal(event)">
+  <div class="output-box">
+    <div class="output-box-header">
+      <span id="output-modal-title">실행 결과</span>
+      <button class="btn btn-secondary btn-sm" onclick="closeOutputModal()">닫기</button>
+    </div>
+    <div class="output-box-body markdown" id="output-modal-body"></div>
+    <div class="output-box-footer">
+      <button class="btn btn-secondary" onclick="closeOutputModal()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Claude Code Live Panel ──────────────────────────────────────── -->
+<div class="output-modal" id="claude-panel" style="align-items:flex-end">
+  <div class="output-box" style="width:min(780px,92vw);max-height:85vh;margin-bottom:0;border-radius:12px 12px 0 0">
+    <div class="output-box-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="claude-title">Claude Code</span>
+        <span id="claude-status" style="font-size:11px;padding:2px 8px;border-radius:10px;background:var(--bg3);color:var(--text3)">연결 중…</span>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="closeClaude()" title="세션 종료 및 닫기" style="font-size:16px;line-height:1;padding:2px 8px">✕</button>
+    </div>
+    <div id="claude-output"
+      style="flex:1;overflow-y:auto;padding:14px 16px;font-family:'Consolas','Courier New',monospace;
+             font-size:12px;line-height:1.6;white-space:pre-wrap;background:var(--bg2);min-height:280px;max-height:55vh"></div>
+    <div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end">
+      <textarea id="claude-input" rows="2"
+        style="flex:1;resize:none;padding:7px 10px;border:1px solid var(--input-border);border-radius:var(--radius);
+               background:var(--input-bg);color:var(--text);font:inherit;font-size:13px"
+        placeholder="메시지 입력 (Enter 전송 / Shift+Enter 줄바꿈)"
+        onkeydown="claudeInputKey(event)"></textarea>
+      <button class="btn btn-primary" onclick="claudeSend()" id="claude-send-btn">전송</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Claude Code Guide Modal ─────────────────────────────────────── -->
+<div class="note-modal" id="guide-modal">
+  <div class="note-box" style="width:440px">
+    <h3 id="guide-title">Claude Code에서 실행하세요</h3>
+    <div style="margin:10px 0;padding:10px 12px;background:var(--bg2);border-radius:6px;border:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Skill</div>
+      <div style="font-weight:700;font-family:monospace;font-size:13px" id="guide-skill"></div>
+    </div>
+    <div style="margin:10px 0;padding:10px 12px;background:var(--bg2);border-radius:6px;border:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Claude Code에 입력할 문구</div>
+      <div style="font-size:13px;color:var(--text)" id="guide-phrase"></div>
+    </div>
+    <div id="guide-note" style="font-size:12px;color:var(--text3);margin-bottom:10px;display:none"></div>
+    <div class="note-box-actions">
+      <button class="btn btn-secondary" onclick="closeGuideModal()">닫기</button>
+      <button class="btn btn-primary" onclick="copyGuidePhrase()">문구 복사</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Note Modal (approve) ────────────────────────────────────────── -->
+<div class="note-modal" id="note-modal">
+  <div class="note-box">
+    <h3>체크포인트 승인</h3>
+    <input type="text" id="note-input" placeholder="승인 메모 (선택)" onkeydown="if(event.key==='Enter')confirmApprove()">
+    <div class="note-box-actions">
+      <button class="btn btn-secondary" onclick="closeNoteModal()">취소</button>
+      <button class="btn btn-success" onclick="confirmApprove()">승인</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast ───────────────────────────────────────────────────────── -->
+<div id="toast"></div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────
+const state = {
+  activeProject: '',
+  configData: {},
+  savedConfigStr: '',
+  currentSessionId: '',
+  pendingApprove: null,
+  fileRefreshTimer: null,
+};
+
+// ── Config Schema ──────────────────────────────────────────────────
+const SCHEMA = [
+  { group: '🏷 Project', key_prefix: '', fields: [
+    { key: 'project.name', label: 'Project Name', type: 'text',
+      desc: '공백 없이 입력하세요. 공백은 자동으로 _로 변환됩니다.',
+      placeholder: 'my_study' },
+  ]},
+  { group: '🔬 Research', fields: [
+    { key: 'research.topic', label: 'Research Topic', type: 'textarea',
+      desc: '배경·맥락·데이터 특성을 한 문단 이내로. Stage 2 문헌 검색과 Stage 5 아웃라인에 활용됩니다.', rows: 4 },
+    { key: 'research.hypothesis', label: 'Hypothesis', type: 'text',
+      desc: '선택. 가설 없는 연구라면 비워두세요.', placeholder: '' },
+    { key: 'research.study_type', label: 'Study Type', type: 'select',
+      options: ['observational','randomized_controlled_trial','case_control','cohort','cross_sectional','systematic_review','meta_analysis'],
+      desc: 'Stage 3 통계 방법 선택에 영향을 줍니다.' },
+    { key: 'research.domains', label: 'Domains', type: 'tags',
+      desc: 'Enter로 추가. 예: oncology, cardiology, orthopedics' },
+    { key: 'research.journal_target', label: 'Target Journal', type: 'text',
+      desc: '목표 학술지 (선택). Stage 6 섹션 작성 시 스타일 참조.', placeholder: 'e.g. PLOS ONE' },
+  ]},
+  { group: '📚 Stage 2 — Literature', fields: [
+    { key: 'stage2.literature.databases', label: 'Databases', type: 'checkboxes',
+      options: ['pubmed','scholar'], desc: 'scholar은 scholarly 패키지 필요.' },
+    { key: 'stage2.literature.pubmed_max_results', label: 'PubMed Max Results', type: 'number', min:5, max:100,
+      desc: '기본 20. 너무 많으면 처리 시간이 길어집니다.' },
+    { key: 'stage2.literature.scholar_max_results', label: 'Scholar Max Results', type: 'number', min:5, max:50 },
+    { key: 'stage2.literature.date_restriction', label: 'Date Restriction', type: 'text',
+      desc: '비우면 제한 없음. 예: 2015/01/01:2026/12/31', placeholder: '' },
+    { key: 'stage2.literature.include_preprints', label: 'Include Preprints', type: 'toggle',
+      desc: '세미날 논문인 경우만 활성화.' },
+    { key: 'stage2.literature.pico_search', label: 'PICO Search', type: 'toggle',
+      desc: 'PICO 구조로 Boolean 쿼리를 자동 생성합니다.' },
+  ]},
+  { group: '📊 Stage 3 — Data Analysis', fields: [
+    { key: 'stage3.analysis.language', label: 'Language', type: 'select',
+      options: ['python','r','both'], desc: '분석 코드 실행 언어.' },
+    { key: 'stage3.analysis.python_path', label: 'Python Path', type: 'text',
+      desc: 'python3 실행 경로.', placeholder: '/usr/bin/python3' },
+    { key: 'stage3.analysis.r_path', label: 'R Path', type: 'text',
+      desc: 'Rscript 경로. 비우면 PATH에서 탐색.', placeholder: '' },
+    { key: 'stage3.analysis.timeout_sec', label: 'Timeout (sec)', type: 'number', min:30, max:600 },
+  ]},
+  { group: '📈 Stage 4 — Visualization', fields: [
+    { key: 'stage4.visualization.language', label: 'Language', type: 'select', options: ['python','r'] },
+    { key: 'stage4.visualization.dpi', label: 'DPI', type: 'number', min:150, max:600,
+      desc: '저널 기본 요건 300 DPI.' },
+    { key: 'stage4.visualization.figure_width_in', label: 'Figure Width (in)', type: 'number', min:1, max:12, step:0.5,
+      desc: 'full=6.5in / single=3.5in / 1.5col=5.0in' },
+    { key: 'stage4.visualization.colorblind_safe', label: 'Colorblind Safe', type: 'toggle',
+      desc: '색맹 안전 팔레트 강제 적용.' },
+    { key: 'stage4.visualization.output_format', label: 'Output Format', type: 'checkboxes',
+      options: ['pdf','png','svg'], desc: 'pdf=벡터(제출용), png=래스터(미리보기)' },
+    { key: 'stage4.visualization.timeout_sec', label: 'Timeout (sec)', type: 'number', min:30, max:600 },
+  ]},
+  { group: '✍ Stage 6 — Writing', fields: [
+    { key: 'stage6.writing.citation_style', label: 'Citation Style', type: 'select',
+      options: ['vancouver','apa','harvard','nature'], desc: '인용 스타일.' },
+    { key: 'stage6.writing.word_limits', label: 'Word Limits', type: 'word-limits',
+      desc: '섹션별 단어 수 제한. 학술지 가이드라인에 맞게 조정하세요.' },
+  ]},
+  { group: '👥 Stage 7 — Peer Review', fields: [
+    { key: 'stage7.review.auto_synthesize', label: 'Auto Synthesize', type: 'toggle',
+      desc: '3개 리뷰 완료 시 자동 합성 실행.' },
+  ]},
+  { group: '✅ Stage 9 — Proofreading', fields: [
+    { key: 'stage9.proofreader.checks.terminology', label: 'Terminology Check', type: 'toggle' },
+    { key: 'stage9.proofreader.checks.abbreviations', label: 'Abbreviations Check', type: 'toggle' },
+    { key: 'stage9.proofreader.checks.figure_references', label: 'Figure References Check', type: 'toggle' },
+    { key: 'stage9.proofreader.checks.statistics_consistency', label: 'Statistics Consistency', type: 'toggle' },
+    { key: 'stage9.proofreader.checks.claim_language', label: 'Claim Language Check', type: 'toggle',
+      desc: 'Abstract/Conclusion의 과장 표현을 감지합니다.' },
+  ]},
+  { group: '⏱ Runtime', fields: [
+    { key: 'runtime.timezone', label: 'Timezone', type: 'text', placeholder: 'Asia/Seoul' },
+    { key: 'runtime.approval_timeout_hours', label: 'Approval Timeout (hours)', type: 'number', min:1, max:168,
+      desc: '체크포인트 대기 시간. 연구자 일정에 맞게 조정하세요.' },
+  ]},
+  { group: '🔔 Notifications', fields: [
+    { key: 'notifications.channel', label: 'Channel', type: 'select',
+      options: ['console','slack','email'], desc: '알림 채널.' },
+    { key: 'notifications.target', label: 'Target', type: 'text',
+      desc: 'slack/email 선택 시 Webhook URL 또는 이메일 주소.', placeholder: '' },
+    { key: 'notifications.on_checkpoint_reached', label: 'On Checkpoint', type: 'toggle' },
+    { key: 'notifications.on_stage_complete', label: 'On Stage Complete', type: 'toggle' },
+    { key: 'notifications.on_error', label: 'On Error', type: 'toggle' },
+  ]},
+  { group: '📦 Export', fields: [
+    { key: 'export.include.manuscript', label: 'Manuscript', type: 'toggle' },
+    { key: 'export.include.analysis_code', label: 'Analysis Code', type: 'toggle' },
+    { key: 'export.include.figure_code', label: 'Figure Code', type: 'toggle' },
+    { key: 'export.include.figure_captions', label: 'Figure Captions', type: 'toggle' },
+    { key: 'export.include.references_bib', label: 'References (.bib)', type: 'toggle' },
+    { key: 'export.include.change_log', label: 'Change Log', type: 'toggle' },
+    { key: 'export.include.response_letter', label: 'Response Letter', type: 'toggle' },
+    { key: 'export.include.proofread_report', label: 'Proofread Report', type: 'toggle' },
+  ]},
+];
+
+// Stage metadata for pipeline panel
+const STAGE_LABELS = {
+  1:'Stage 1 — Input Classification', 2:'Stage 2 — Background Knowledge',
+  3:'Stage 3 — Data Analysis', 4:'Stage 4 — Visualization',
+  5:'Stage 5 — Paper Outline', 6:'Stage 6 — Paper Draft',
+  7:'Stage 7 — Peer Review', 8:'Stage 8 — Paper Revision', 9:'Stage 9 — Proofreading'
+};
+
+// Per-CP run behavior: 'auto' runs Python directly, 'ai' shows Claude Code guide
+const CP_RUN = {
+  '1':   { type:'auto', component:'intake',   needsTopic:true,  label:'Run Intake' },
+  '2':   { type:'ai',   skill:'literature',
+           phrase:'Run the literature skill. Search for relevant papers and produce a thematic synthesis.',
+           note:'Run PubMed search first (button below) to enrich results.' },
+  '3A':  { type:'ai',   skill:'data-analysis',
+           phrase:'Run the data-analysis skill. Build a literature-informed statistical plan and generate analysis code.',
+           note:'Complete Stage 2 (literature) before running.' },
+  '3B':  { type:'ai',   skill:'data-analysis',
+           phrase:'CP 3A is approved. Run the data-analysis skill to interpret the analysis results.',
+           note:'Runs after analysis code has been executed and results are available.' },
+  '4':   { type:'ai',   skill:'visualization',
+           phrase:'Run the visualization skill. Select figure types, generate plotting code, and write captions.' },
+  '5':   { type:'ai',   skill:'story-writer',
+           phrase:'Run the story-writer skill. Define the key message, narrative arc, and section-by-section outline.',
+           note:'Requires Stages 2, 3, and 4 all complete.' },
+  '6-1': { type:'ai',   skill:'section-writer', phrase:'Write the Methods section.' },
+  '6-2': { type:'ai',   skill:'section-writer', phrase:'Write the Results section.' },
+  '6-3': { type:'ai',   skill:'section-writer', phrase:'Write the Discussion section.' },
+  '6-4': { type:'ai',   skill:'section-writer', phrase:'Write the Conclusion section.' },
+  '6-5': { type:'ai',   skill:'section-writer', phrase:'Write the Introduction section.' },
+  '6-6': { type:'ai',   skill:'section-writer', phrase:'Write the Abstract section.' },
+  '7':   { type:'ai',   skill:'reviewer-a / reviewer-b / reviewer-c',
+           phrase:'Run peer review. Load the appropriate reviewer skill (reviewer-a, reviewer-b, or reviewer-c) and critique the manuscript.',
+           note:'Run Reviewer A, B, C separately, then use the Synthesis button below.' },
+  '8':   { type:'ai',   skill:'revision',
+           phrase:'Run the revision skill. Address the reviewer checklist, track changes, and write the response letter.' },
+  '9':   { type:'auto', component:'proofread', label:'Run Proofread' },
+};
+
+// ── Utility ────────────────────────────────────────────────────────
+function get(obj, dotKey) {
+  return dotKey.split('.').reduce((o,k) => o?.[k], obj);
+}
+function set(obj, dotKey, val) {
+  const keys = dotKey.split('.'); const last = keys.pop();
+  const target = keys.reduce((o,k) => { if(!o[k]) o[k]={}; return o[k]; }, obj);
+  target[last] = val;
+}
+function toast(msg, ms=2500) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), ms);
+}
+async function api(method, path, body=null) {
+  const opts = { method, headers:{'Content-Type':'application/json'} };
+  if(body) opts.body = JSON.stringify(body);
+  const r = await fetch(path, opts);
+  return r.json();
+}
+
+// ── Theme ──────────────────────────────────────────────────────────
+function initTheme() {
+  const saved = localStorage.getItem('ar-theme');
+  const dark = saved ? saved==='dark' : false;
+  applyTheme(dark);
+}
+function applyTheme(dark) {
+  document.documentElement.setAttribute('data-theme', dark?'dark':'light');
+  document.getElementById('dark-switch').classList.toggle('on', dark);
+  document.getElementById('dark-label').textContent = dark ? '☀ Light' : '🌙 Dark';
+}
+function toggleDark() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  applyTheme(!isDark);
+  localStorage.setItem('ar-theme', !isDark?'dark':'light');
+}
+
+// ── Panel navigation ───────────────────────────────────────────────
+function showPanel(name, navEl) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(navEl) navEl.classList.add('active');
+  if(name==='backgrounds') refreshFiles();
+  if(name==='pipeline') refreshPipeline();
+}
+
+// ── Projects ───────────────────────────────────────────────────────
+async function loadProjects() {
+  const projects = await api('GET', '/api/projects');
+  const sel = document.getElementById('project-select');
+  sel.innerHTML = '<option value="">— 프로젝트 선택 —</option>';
+  projects.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.slug; opt.textContent = p.name + (p.topic ? ' — '+p.topic.slice(0,30) : '');
+    sel.appendChild(opt);
+  });
+  // restore previously selected project if still exists
+  if(state.activeProject) {
+    const exists = projects.some(p => p.slug === state.activeProject);
+    if(exists) sel.value = state.activeProject;
+  }
+}
+
+function newProject() {
+  state.activeProject = '';
+  document.getElementById('project-select').value = '';
+  // Load default config and clear project name so user fills it in
+  api('GET', '/api/config/default').then(data => {
+    data.project = data.project || {};
+    data.project.name = '';
+    state.configData = data;
+    state.savedConfigStr = JSON.stringify(data);  // clean until user edits
+    renderSettings();
+    updateSaveBar();
+    updateFolderUI();
+    // Switch to config panel and focus project name
+    showPanel('config', document.querySelector('[data-panel="config"]'));
+    setTimeout(() => {
+      const nameInput = document.querySelector('[data-key="project.name"] input');
+      if (nameInput) { nameInput.focus(); nameInput.scrollIntoView({behavior:'smooth', block:'center'}); }
+    }, 100);
+  });
+  toast('새 프로젝트 — project.name을 입력하고 저장하세요');
+}
+
+async function onProjectChange(slug) {
+  if(!slug) return;
+  state.activeProject = slug;
+  await loadConfig(slug);
+  updateFolderUI();
+  refreshFiles();
+}
+
+// ── Config ─────────────────────────────────────────────────────────
+async function loadConfig(slug) {
+  const data = await api('GET', `/api/config/${slug||'default'}`);
+  state.configData = data;
+  state.savedConfigStr = JSON.stringify(data);
+  renderSettings();
+  updateSaveBar();
+}
+
+function renderSettings() {
+  const container = document.getElementById('settings-container');
+  container.innerHTML = '';
+  SCHEMA.forEach(group => {
+    const gDiv = document.createElement('div');
+    gDiv.className = 'settings-group';
+    gDiv.innerHTML = `<div class="settings-group-title">${group.group}</div>`;
+    group.fields.forEach(f => {
+      const row = buildSettingRow(f);
+      gDiv.appendChild(row);
+    });
+    container.appendChild(gDiv);
+  });
+}
+
+function buildSettingRow(f) {
+  const row = document.createElement('div');
+  row.className = 'setting-row';
+  row.dataset.key = f.key;
+  row.dataset.label = (f.label||'').toLowerCase();
+
+  const meta = document.createElement('div');
+  meta.className = 'setting-meta';
+  meta.innerHTML = `<div class="setting-label">${f.label}</div>${f.desc?`<div class="setting-desc">${f.desc}</div>`:''}`;
+
+  const col = document.createElement('div');
+  col.className = 'setting-input-col';
+  col.appendChild(buildInput(f));
+
+  row.appendChild(meta);
+  row.appendChild(col);
+  return row;
+}
+
+function buildInput(f) {
+  const val = get(state.configData, f.key);
+  switch(f.type) {
+    case 'text': {
+      const el = document.createElement('input');
+      el.type = 'text'; el.value = val||''; el.placeholder = f.placeholder||'';
+      el.oninput = () => { set(state.configData, f.key, el.value); markDirty(); };
+      return el;
+    }
+    case 'textarea': {
+      const el = document.createElement('textarea');
+      el.rows = f.rows||3; el.value = typeof val==='string'?val.trim():'';
+      el.oninput = () => { set(state.configData, f.key, el.value); markDirty(); };
+      return el;
+    }
+    case 'number': {
+      const el = document.createElement('input');
+      el.type = 'number';
+      if(f.min!==undefined) el.min = f.min;
+      if(f.max!==undefined) el.max = f.max;
+      if(f.step!==undefined) el.step = f.step;
+      el.value = val!==undefined?val:'';
+      el.oninput = () => { set(state.configData, f.key, Number(el.value)||0); markDirty(); };
+      return el;
+    }
+    case 'select': {
+      const el = document.createElement('select');
+      (f.options||[]).forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o; opt.textContent = o; if(o===val) opt.selected=true;
+        el.appendChild(opt);
+      });
+      el.onchange = () => { set(state.configData, f.key, el.value); markDirty(); };
+      return el;
+    }
+    case 'toggle': {
+      const wrap = document.createElement('div');
+      wrap.className = 'inline-toggle';
+      const sw = document.createElement('div');
+      sw.className = 'toggle-switch' + (val?' on':'');
+      const label = document.createElement('span');
+      label.textContent = val ? '활성화' : '비활성화';
+      sw.onclick = () => {
+        const cur = get(state.configData, f.key);
+        set(state.configData, f.key, !cur);
+        sw.classList.toggle('on', !cur);
+        label.textContent = !cur ? '활성화' : '비활성화';
+        markDirty();
+      };
+      wrap.appendChild(sw); wrap.appendChild(label);
+      return wrap;
+    }
+    case 'checkboxes': {
+      const wrap = document.createElement('div');
+      wrap.className = 'check-group';
+      const arr = Array.isArray(val)?val:[];
+      (f.options||[]).forEach(o => {
+        const item = document.createElement('div');
+        item.className = 'check-item';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox'; cb.checked = arr.includes(o);
+        cb.onchange = () => {
+          const cur = Array.isArray(get(state.configData, f.key)) ? [...get(state.configData, f.key)] : [];
+          if(cb.checked && !cur.includes(o)) cur.push(o);
+          else if(!cb.checked) { const i=cur.indexOf(o); if(i>=0) cur.splice(i,1); }
+          set(state.configData, f.key, cur); markDirty();
+        };
+        const lbl = document.createElement('label');
+        lbl.textContent = o;
+        item.appendChild(cb); item.appendChild(lbl);
+        wrap.appendChild(item);
+      });
+      return wrap;
+    }
+    case 'tags': {
+      const wrap = document.createElement('div');
+      wrap.className = 'tags-input';
+      const arr = Array.isArray(val)?[...val]:[];
+      const input = document.createElement('input');
+      input.placeholder = 'Enter로 추가…';
+      const render = () => {
+        wrap.querySelectorAll('.tag').forEach(t=>t.remove());
+        arr.forEach((tag, i) => {
+          const t = document.createElement('div');
+          t.className = 'tag';
+          t.innerHTML = `${tag}<span class="tag-del" data-i="${i}">×</span>`;
+          t.querySelector('.tag-del').onclick = () => { arr.splice(i,1); set(state.configData,f.key,[...arr]); markDirty(); render(); };
+          wrap.insertBefore(t, input);
+        });
+      };
+      input.onkeydown = e => {
+        if(e.key==='Enter'||e.key===',') {
+          e.preventDefault();
+          const v = input.value.trim().replace(/,$/,'');
+          if(v && !arr.includes(v)) { arr.push(v); set(state.configData,f.key,[...arr]); markDirty(); }
+          input.value=''; render();
+        }
+      };
+      wrap.appendChild(input); render();
+      return wrap;
+    }
+    case 'word-limits': {
+      const obj = val||{};
+      const sections = ['abstract','methods','results','discussion','introduction','conclusion'];
+      const grid = document.createElement('div');
+      grid.className = 'word-limits-grid';
+      sections.forEach(sec => {
+        const item = document.createElement('div');
+        item.className = 'wl-item';
+        const lbl = document.createElement('label');
+        lbl.textContent = sec[0].toUpperCase()+sec.slice(1);
+        const inp = document.createElement('input');
+        inp.type='number'; inp.min=50; inp.max=5000;
+        inp.value = obj[sec]||'';
+        inp.oninput = () => {
+          const cur = get(state.configData,f.key)||{};
+          cur[sec] = Number(inp.value)||0;
+          set(state.configData,f.key,cur); markDirty();
+        };
+        item.appendChild(lbl); item.appendChild(inp);
+        grid.appendChild(item);
+      });
+      return grid;
+    }
+  }
+  return document.createElement('div');
+}
+
+function filterSettings(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('.setting-row').forEach(row => {
+    const match = !q || row.dataset.label.includes(q) || (row.dataset.key||'').includes(q);
+    row.style.display = match ? '' : 'none';
+  });
+  document.querySelectorAll('.settings-group').forEach(g => {
+    const visible = [...g.querySelectorAll('.setting-row')].some(r=>r.style.display!=='none');
+    g.style.display = visible ? '' : 'none';
+  });
+}
+
+function isDirty() {
+  return JSON.stringify(state.configData) !== state.savedConfigStr;
+}
+function markDirty() {
+  updateSaveBar();
+  const name = (get(state.configData,'project.name')||'').replace(/\s+/g,'_');
+  updateFolderUI();
+}
+function updateSaveBar() {
+  const hint = document.getElementById('save-hint');
+  const dirty = isDirty();
+  hint.textContent = dirty ? '저장되지 않은 변경사항 있음' : '저장된 상태';
+  hint.className = 'save-hint' + (dirty?' dirty':'');
+}
+async function saveConfig() {
+  // Slugify project name
+  const name = (get(state.configData,'project.name')||'').trim();
+  if(!name){ toast('⚠ project.name을 입력하세요'); return; }
+  const slug = name.replace(/[^\w\-]/g,'_').replace(/^_+|_+$/g,'');
+  set(state.configData,'project.name',slug);
+  const res = await api('POST','/api/config', state.configData);
+  if(res.slug) {
+    state.savedConfigStr = JSON.stringify(state.configData);
+    state.activeProject = res.slug;
+    updateSaveBar();
+    await loadProjects();
+    document.getElementById('project-select').value = res.slug;
+    toast('✓ 저장되었습니다 — config.'+res.slug+'.yaml');
+  }
+}
+async function resetConfig() {
+  if(!confirm('변경사항을 되돌리겠습니까?')) return;
+  await loadConfig(state.activeProject);
+}
+
+// ── Backgrounds ────────────────────────────────────────────────────
+function updateFolderUI() {
+  const name = state.activeProject || (get(state.configData,'project.name')||'').replace(/\s+/g,'_');
+  const pathEl = document.getElementById('folder-path');
+  pathEl.textContent = name ? `input/${name}/` : '프로젝트를 선택하세요';
+}
+
+async function createFolder() {
+  const name = state.activeProject;
+  if(!name){ toast('⚠ 먼저 프로젝트를 선택하거나 저장하세요'); return; }
+  await api('POST','/api/folder/create',{name});
+  toast('✓ 폴더 생성됨');
+  refreshFiles();
+}
+async function openFolder() {
+  const name = state.activeProject;
+  if(!name){ toast('⚠ 먼저 프로젝트를 선택하거나 저장하세요'); return; }
+  await createFolder();
+  const r = await api('POST','/api/folder/open',{name});
+  if(!r.ok) toast('탐색기 열기 실패: '+r.error);
+}
+
+let _fileTimer = null;
+async function refreshFiles() {
+  const name = state.activeProject;
+  if(!name){ document.getElementById('file-items').innerHTML=''; return; }
+  const r = await api('GET',`/api/folder/files/${name}`);
+  const items = document.getElementById('file-items');
+  const count = document.getElementById('file-count');
+  if(!r.exists || !r.files.length) {
+    count.textContent = '';
+    items.innerHTML = '<div class="empty-hint">아직 파일이 없습니다.<br>탐색기에서 파일을 복사하거나 붙여넣기 하세요.</div>';
+    return;
+  }
+  count.textContent = `(${r.files.length}개)`;
+  items.innerHTML = r.files.map(f=>`
+    <div class="file-item">
+      <span style="font-size:14px">${fileIcon(f.name)}</span>
+      <span class="file-name">${f.name}</span>
+      <span class="file-size">${f.size_kb} KB</span>
+      <span class="file-open" onclick="openVSCode('input/${name}/${f.name}')">↗ 열기</span>
+    </div>
+  `).join('');
+  // auto-refresh every 8s while backgrounds panel is active
+  clearTimeout(_fileTimer);
+  _fileTimer = setTimeout(()=>{ if(document.getElementById('panel-backgrounds').classList.contains('active')) refreshFiles(); }, 8000);
+}
+function fileIcon(name) {
+  if(/\.(csv|xlsx|xls)$/i.test(name)) return '📊';
+  if(/\.pdf$/i.test(name)) return '📄';
+  if(/\.(py|r|rmd)$/i.test(name)) return '📝';
+  if(/\.(png|jpg|svg|pdf)$/i.test(name)) return '🖼';
+  if(/\.(bib|ris)$/i.test(name)) return '📚';
+  if(/\.(md|txt|docx)$/i.test(name)) return '📃';
+  return '📎';
+}
+async function openVSCode(path) {
+  await api('POST','/api/vscode/open',{path});
+}
+
+// ── Pipeline ───────────────────────────────────────────────────────
+async function loadSessions() {
+  const sessions = await api('GET','/api/pipeline/sessions');
+  const sel = document.getElementById('session-select');
+  sel.innerHTML = '<option value="">— 세션 선택 —</option>';
+  sessions.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.session_id;
+    opt.textContent = `${s.topic.slice(0,35)} (${s.cleared}/${s.total} CPs)`;
+    sel.appendChild(opt);
+  });
+  if(sessions.length > 0 && !state.currentSessionId) {
+    state.currentSessionId = sessions[0].session_id;
+    sel.value = state.currentSessionId;
+  }
+}
+
+async function refreshPipeline() {
+  await loadSessions();
+  await loadPipeline(state.currentSessionId);
+}
+
+async function loadPipeline(sessionId) {
+  if(sessionId) state.currentSessionId = sessionId;
+  const data = await api('GET', `/api/pipeline/status${state.currentSessionId?'?session_id='+state.currentSessionId:''}`);
+  renderPipeline(data);
+}
+
+function renderPipeline(data) {
+  const body = document.getElementById('pipeline-content');
+  if(!data || data.error==='no_session') {
+    body.innerHTML = `
+      <div class="no-session-msg">
+        <div class="big">🧪</div>
+        <p>진행 중인 세션이 없습니다.<br>
+        새 세션을 시작하거나 config를 저장한 후 생성하세요.</p>
+        <br>
+        <button class="btn btn-primary" onclick="showNewSession()">+ 새 세션 시작</button>
+      </div>`;
+    document.getElementById('cp-badge').style.display='none';
+    return;
+  }
+
+  const prog = data.progress;
+  const pct = prog.pct || 0;
+  const cleared = prog.cleared || 0;
+  const total = prog.total || 15;
+  const nextCp = prog.next_checkpoint;
+  const skill = prog.current_skill;
+
+  // Badge
+  const badge = document.getElementById('cp-badge');
+  badge.textContent = `${cleared}/${total}`;
+  badge.style.display = '';
+
+  // Group CPs by stage
+  const byStage = {};
+  (data.checkpoints||[]).forEach(cp => {
+    if(!byStage[cp.stage]) byStage[cp.stage] = [];
+    byStage[cp.stage].push(cp);
+  });
+
+  let html = `
+    <div class="progress-bar-wrap">
+      <div class="progress-label">
+        <span><strong>${data.topic||''}</strong> — ${cleared}/${total} checkpoints</span>
+        <span>${pct}%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      ${nextCp ? `<div class="progress-next">다음: CP ${nextCp} <span class="skill-pill">${skill||''}</span></div>` : '<div class="progress-next" style="color:var(--success)">✓ 파이프라인 완료</div>'}
+    </div>
+  `;
+
+  Object.entries(byStage).forEach(([stageNum, cps]) => {
+    const n = parseInt(stageNum);
+    html += `<div class="stage-group">`;
+    html += `<div class="stage-title"><span class="stage-num">S${stageNum}</span>${STAGE_LABELS[n]||'Stage '+n}</div>`;
+
+    cps.forEach(cp => {
+      const cls = cp.cleared ? 'cleared' : cp.blocked_by?.length ? 'blocked' : '';
+      const icon = cp.cleared ? '✓' : cp.blocked_by?.length ? '🔒' : '○';
+      const run = CP_RUN[cp.id];
+      const runLabel = run ? (run.type==='auto' ? (run.label||'실행') : '▶ Claude Code') : '';
+      const runStyle = run?.type==='auto' ? 'btn-secondary' : 'btn-secondary';
+      const blockedTxt = cp.blocked_by?.length
+        ? `<span class="cp-blocked-txt">⛔ CP ${cp.blocked_by.join(', ')} 먼저 승인 필요</span>` : '';
+
+      html += `
+        <div class="cp-row ${cls}">
+          <span class="cp-id">CP&nbsp;${cp.id}</span>
+          <span class="cp-icon">${icon}</span>
+          <div class="cp-body">
+            <div class="cp-desc">${cp.description}</div>
+            <div class="cp-meta">
+              <span class="cp-skill">${cp.skill||''}</span>
+              ${cp.note ? `<span class="cp-note">${cp.note}</span>` : ''}
+              ${blockedTxt}
+            </div>
+          </div>
+          <div class="cp-run-col">
+            ${run && !cp.cleared ? `<button class="btn ${runStyle} btn-sm" onclick="runStage('${cp.id}')">${runLabel}</button>` : ''}
+          </div>
+          <div class="cp-approve-col">
+            ${cp.can_approve ? `<button class="btn btn-success btn-sm" onclick="approveCP('${cp.id}')">✓ 승인</button>` : ''}
+            ${cp.cleared ? `<button class="btn btn-secondary btn-sm" onclick="revokeCP('${cp.id}')">↩ 취소</button>` : ''}
+          </div>
+        </div>`;
+    });
+    html += `</div>`;
+  });
+
+  // Utility section (non-CP automated tasks)
+  html += `
+    <div class="run-section">
+      <div class="run-section-title">🔧 유틸리티</div>
+      <div class="run-actions">
+        <button class="btn btn-secondary" onclick="runComponent('pubmed','PubMed 검색',false,true)">🔍 PubMed 검색</button>
+        <button class="btn btn-secondary" onclick="runComponent('synthesis','Review Synthesis')">⚗ Review Synthesis</button>
+        <button class="btn btn-secondary" onclick="runExport()">📦 Export</button>
+      </div>
+    </div>`;
+
+  body.innerHTML = html;
+}
+
+// ── acpx Claude session ────────────────────────────────────────────
+let _ws = null;
+let _wsSession = 'autoresearch';
+let _wsReady = false;
+
+function _connectWS() {
+  if (_ws && _ws.readyState === WebSocket.OPEN) return;
+  _ws = new WebSocket(`ws://${window.location.host}/ws/claude/${_wsSession}`);
+  _ws.onopen = () => {};
+  _ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    const out = document.getElementById('claude-output');
+    if (!out) return;
+    if (msg.type === 'ready') {
+      _wsReady = true;
+      document.getElementById('claude-status').textContent = '연결됨';
+      document.getElementById('claude-status').style.background = 'var(--success-bg)';
+      document.getElementById('claude-status').style.color = 'var(--success)';
+    } else if (msg.type === 'thinking') {
+      document.getElementById('claude-status').textContent = '생각 중…';
+      document.getElementById('claude-status').style.background = 'var(--warn-bg)';
+      document.getElementById('claude-status').style.color = 'var(--warn)';
+      document.getElementById('claude-send-btn').disabled = true;
+    } else if (msg.type === 'stream') {
+      out.textContent += msg.text;
+      out.scrollTop = out.scrollHeight;
+    } else if (msg.type === 'done') {
+      document.getElementById('claude-status').textContent = '대기 중';
+      document.getElementById('claude-status').style.background = 'var(--success-bg)';
+      document.getElementById('claude-status').style.color = 'var(--success)';
+      document.getElementById('claude-send-btn').disabled = false;
+      // Re-render as markdown
+      if (msg.full) {
+        const md = document.createElement('div');
+        md.className = 'claude-md-block';
+        md.innerHTML = marked.parse(msg.full);
+        // replace raw text with markdown block
+        const rawText = out.textContent;
+        out.textContent = '';
+        out.appendChild(md);
+        out.scrollTop = out.scrollHeight;
+      }
+    } else if (msg.type === 'error') {
+      out.textContent += '\n⚠ ' + msg.text;
+      document.getElementById('claude-send-btn').disabled = false;
+    }
+  };
+  _ws.onclose = () => {
+    _wsReady = false;
+    const st = document.getElementById('claude-status');
+    if (st) { st.textContent = '연결 끊김'; st.style.background='var(--danger-bg)'; st.style.color='var(--danger)'; }
+  };
+}
+
+function openClaude(cpId, phrase) {
+  const run = CP_RUN[cpId];
+  document.getElementById('claude-title').textContent = `CP ${cpId} — ${run?.skill || ''}`;
+  document.getElementById('claude-output').textContent = '';
+  document.getElementById('claude-input').value = phrase || '';
+  document.getElementById('claude-panel').classList.add('open');
+  _connectWS();
+}
+
+function closeClaude() {
+  if (_ws && _ws.readyState === WebSocket.OPEN) {
+    _ws.send(JSON.stringify({ type: 'kill' }));
+    _ws.close();
+  }
+  _ws = null;
+  _wsReady = false;
+  document.getElementById('claude-panel').classList.remove('open');
+}
+
+function claudeSendText(text) {
+  if (!_ws || _ws.readyState !== WebSocket.OPEN) { toast('WebSocket 연결 중…'); return; }
+  const out = document.getElementById('claude-output');
+  out.textContent += `\n\n▶ ${text}\n${'─'.repeat(40)}\n`;
+  out.scrollTop = out.scrollHeight;
+  _ws.send(JSON.stringify({ type: 'send', text }));
+}
+
+function claudeSend() {
+  const inp = document.getElementById('claude-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  claudeSendText(text);
+}
+
+function claudeInputKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); claudeSend(); }
+}
+
+// ── Run stage ─────────────────────────────────────────────────────
+function runStage(cpId) {
+  const run = CP_RUN[cpId];
+  if (!run) return;
+  if (run.type === 'auto') {
+    runComponent(run.component, run.label || '실행', run.needsTopic || false, run.needsQuery || false);
+  } else {
+    // Extract first phrase (before " 또는 ")
+    const phrase = (run.phrase || '').replace(/^"|".*$/g, '').split('" 또는 "')[0].replace(/^"|"$/g, '');
+    openClaude(cpId, phrase);
+  }
+}
+function closeGuideModal() {
+  document.getElementById('guide-modal').classList.remove('open');
+}
+function copyGuidePhrase() {
+  const phrase = document.getElementById('guide-phrase').textContent
+    .replace(/^"|"$/g, '').split('" 또는 "')[0];
+  navigator.clipboard.writeText(phrase).then(() => toast('✓ 복사됨'));
+}
+
+// ── Approve / Revoke ───────────────────────────────────────────────
+function approveCP(cpId) {
+  state.pendingApprove = cpId;
+  document.getElementById('note-input').value = '';
+  document.getElementById('note-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('note-input').focus(), 100);
+}
+function closeNoteModal() {
+  document.getElementById('note-modal').classList.remove('open');
+  state.pendingApprove = null;
+}
+async function confirmApprove() {
+  const cpId = state.pendingApprove;
+  const note = document.getElementById('note-input').value.trim();
+  closeNoteModal();
+  const r = await api('POST','/api/pipeline/approve',{cp_id:cpId, note, session_id:state.currentSessionId});
+  if(r.approved) { toast(`✓ CP ${cpId} 승인됨`); await refreshPipeline(); }
+  else toast('오류: '+(r.detail||JSON.stringify(r)));
+}
+async function revokeCP(cpId) {
+  if(!confirm(`CP ${cpId}를 취소하고 롤백하시겠습니까?`)) return;
+  const r = await api('POST','/api/pipeline/revoke',{cp_id:cpId, session_id:state.currentSessionId});
+  if(r.revoked) { toast(`↩ 취소됨: ${r.revoked.join(', ')}`); await refreshPipeline(); }
+}
+
+// ── Run components ─────────────────────────────────────────────────
+async function runComponent(component, label, needsTopic=false, needsQuery=false) {
+  let topic = state.activeProject || '';
+  let query = '';
+  if(needsTopic || needsQuery) {
+    const val = prompt(needsQuery?`PubMed 검색어:${'\n'}(비우면 연구 주제로 자동 검색)`:null, needsQuery?'':'');
+    if(needsQuery) query = val||'';
+    if(needsTopic && !topic) { topic = prompt('프로젝트 폴더명 (input/ 하위):',''); if(!topic) return; }
+  }
+  const loadingModal = showOutput(label+' 실행 중…', '처리 중입니다. 잠시 기다려 주세요…');
+  try {
+    const r = await api('POST','/api/pipeline/run',{
+      component, session_id:state.currentSessionId,
+      topic, query, max_results:20
+    });
+    if(r.output) showOutput(label+' 결과', r.output, true);
+    else if(r.error) showOutput('오류', r.error);
+    else showOutput(label, JSON.stringify(r,null,2));
+    await refreshPipeline();
+  } catch(e) {
+    showOutput('오류', e.message);
+  }
+}
+
+async function runExport() {
+  const r = await api('POST','/api/pipeline/export',{session_id:state.currentSessionId});
+  if(r.path) {
+    toast('✓ Export 완료');
+    if(confirm(`Final output 저장됨:\n${r.path}\n\nVSCode에서 열까요?`)) openVSCode(r.path);
+  } else toast('Export 실패: '+(r.detail||''));
+}
+
+// ── New Session ────────────────────────────────────────────────────
+async function showNewSession() {
+  const slug = state.activeProject;
+  if(slug) {
+    if(!confirm(`config.${slug}.yaml 으로 새 세션을 시작하시겠습니까?`)) return;
+    const r = await api('POST','/api/pipeline/new',{config_slug:slug});
+    if(r.session_id) {
+      state.currentSessionId = r.session_id;
+      toast(`✓ 새 세션 시작: ${r.session_id}`);
+      await refreshPipeline();
+    } else toast('오류: '+(r.detail||''));
+  } else {
+    const topic = prompt('연구 주제를 입력하세요:','');
+    if(!topic) return;
+    const r = await api('POST','/api/pipeline/new',{topic});
+    if(r.session_id) {
+      state.currentSessionId = r.session_id;
+      toast(`✓ 새 세션 시작`);
+      await refreshPipeline();
+    } else toast('오류: '+(r.detail||''));
+  }
+}
+
+// ── Output Modal ───────────────────────────────────────────────────
+function showOutput(title, content, isMarkdown=false) {
+  document.getElementById('output-modal-title').textContent = title;
+  const body = document.getElementById('output-modal-body');
+  if(isMarkdown) {
+    body.classList.add('markdown');
+    body.innerHTML = marked.parse(content||'');
+  } else {
+    body.classList.remove('markdown');
+    body.textContent = content||'';
+  }
+  document.getElementById('output-modal').classList.add('open');
+}
+function closeOutputModal(e) {
+  if(e && e.target!==document.getElementById('output-modal')) return;
+  document.getElementById('output-modal').classList.remove('open');
+}
+
+// ── Init ───────────────────────────────────────────────────────────
+async function init() {
+  initTheme();
+  await loadProjects();
+  // Load default config if no project selected
+  if(!state.activeProject) {
+    const data = await api('GET','/api/config/default');
+    state.configData = data;
+    state.savedConfigStr = JSON.stringify(data);
+    renderSettings();
+    updateSaveBar();
+  }
+  await loadSessions();
+}
+
+init();
+</script>
+</body>
+</html>

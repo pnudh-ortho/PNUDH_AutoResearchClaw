@@ -1,0 +1,125 @@
+project:
+  name: orthodontic-ai-survey
+research:
+  topic: "A Methodological Framework for Orthodontic Treatment Outcome Prediction:\n\
+    \    How to Leverage Multimodal Deep Learning with 2D Intra-oral Photographs\n\
+    \    and 3D Intra-oral Scans.\n    This paper addresses a novel clinical problem\
+    \ with limited prior art:\n    given (1) a longitudinal dataset of 2D intra-oral\
+    \ photographs (maxillary\n    occlusal, mandibular occlusal, frontal, left buccal,\
+    \ right buccal views)\n    taken at periodic checkpoints throughout completed\
+    \ orthodontic treatments,\n    and (2) paired pre- and post-treatment 3D intra-oral\
+    \ scan datasets, build\n    a system that takes a new patient's baseline 2D photographs\
+    \ and 3D scan as\n    input and outputs predicted intermediate treatment-progress\
+    \ images and the\n    final post-treatment outcome image.\n    Because direct\
+    \ prior work on this exact problem is scarce, the paper's\n    central contribution\
+    \ is a technical deep-dive into which existing techniques\n    from adjacent fields\
+    \ are most applicable, how each technique works, why it\n    is suitable for this\
+    \ problem, and how they should be composed into a\n    coherent pipeline. Specifically,\
+    \ the paper should explain and justify\n    choices across: (a) 3D dental data\
+    \ representation — point clouds,\n    mesh-based methods, implicit neural representations\
+    \ (NeRF, SDF), and\n    voxel grids; (b) 2D-3D multimodal fusion strategies —\
+    \ cross-attention,\n    projection-based alignment, and contrastive cross-modal\
+    \ pretraining;\n    (c) generative models for image synthesis — conditional diffusion\
+    \ models,\n    GANs (pix2pix, CycleGAN), and neural rendering; (d) temporal tooth\n\
+    \    movement modeling — video diffusion, latent space interpolation, and\n  \
+    \  physics-informed neural networks; (e) training strategies given limited\n \
+    \   clinical data — transfer learning, data augmentation, self-supervised\n  \
+    \  pretraining, and synthetic data generation. The paper should propose a\n  \
+    \  concrete recommended pipeline architecture and discuss why each component\n\
+    \    was chosen over alternatives. No real experiments are conducted — this is\n\
+    \    a methodological proposal grounded in technical reasoning and adjacent\n\
+    \    literature."
+  hypothesis: ''
+  study_type: observational
+  domains:
+  - dentistry
+  - orthodontics
+  - artificial-intelligence
+  - deep-learning
+  journal_target: ''
+pipeline:
+  sessions_dir: sessions
+  session_id: ''
+stage2:
+  literature:
+    databases:
+    - pubmed
+    - scholar
+    pubmed_max_results: 20
+    scholar_max_results: 10
+    date_restriction: ''
+    include_preprints: false
+    pico_search: false
+stage3:
+  analysis:
+    language: python
+    python_path: /home/hyeonjin/miniconda3/envs/claude/bin/python3
+    r_path: ''
+    timeout_sec: 120
+    python_packages:
+    - pandas
+    - numpy
+    - scipy
+    - statsmodels
+    - pingouin
+    r_packages:
+    - stats
+    - rstatix
+    - car
+stage4:
+  visualization:
+    language: python
+    dpi: 300
+    figure_width_in: 6.5
+    colorblind_safe: true
+    output_format:
+    - pdf
+    - png
+    timeout_sec: 180
+stage6:
+  writing:
+    citation_style: vancouver
+    word_limits:
+      abstract: 250
+      methods: 800
+      results: 1000
+      discussion: 1200
+      introduction: 600
+      conclusion: 300
+stage7:
+  review:
+    auto_synthesize: true
+stage9:
+  proofreader:
+    checks:
+      terminology: true
+      abbreviations: true
+      figure_references: true
+      statistics_consistency: true
+      claim_language: true
+runtime:
+  timezone: Asia/Seoul
+  approval_timeout_hours: 72
+notifications:
+  channel: console
+  target: ''
+  on_checkpoint_reached: true
+  on_stage_complete: true
+  on_error: true
+llm:
+  provider: acp
+  acp:
+    agent: claude
+    cwd: .
+export:
+  format: markdown
+  output_bundle: final_output.md
+  include:
+    manuscript: true
+    analysis_code: true
+    figure_code: true
+    figure_captions: true
+    references_bib: true
+    change_log: true
+    response_letter: true
+    proofread_report: true

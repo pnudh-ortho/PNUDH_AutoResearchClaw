@@ -1,0 +1,31 @@
+{
+  "session_id": "20260406-075510-757ab1",
+  "created_at": "2026-04-06T07:55:10+00:00",
+  "updated_at": "2026-04-06T08:43:47+00:00",
+  "topic": "test",
+  "journal_target": "",
+  "workspace_dir": "sessions/20260406-075510-757ab1",
+  "cleared_checkpoints": [
+    "1",
+    "2"
+  ],
+  "checkpoint_notes": {},
+  "checkpoint_artifacts": {},
+  "intake_report": "# Intake Report\n\n**Topic dir:** `/home/hyeonjin/PNUDH_AutoResearchClaw/input/orthodontic-ai-survey`\n\n**Entry point:** Stage 2  \n**Reason:** Reference PDFs provided with no data — reference-only or review mode.\n\n**Total files:** 3\n\n\n## Classified Files\n\n\n### reference_pdf\n\n- Geometry-Aware Attenuation Learning for Sparse-View CBCT Reconstruction.pdf\n- CrossTooth.pdf\n- TeethDreamer.pdf",
+  "literature_synthesis": "",
+  "analysis_summary": "",
+  "figure_list": [],
+  "key_message": "",
+  "narrative_arc": "",
+  "section_drafts": {},
+  "review_a": "",
+  "review_b": "",
+  "review_c": "",
+  "review_synthesis": "",
+  "change_log": [],
+  "items_not_addressed": [],
+  "response_letter": "",
+  "proofread_report": "",
+  "source_input_dir": "/home/hyeonjin/PNUDH_AutoResearchClaw/input/orthodontic-ai-survey",
+  "intake_entry_point": "Stage 2"
+}

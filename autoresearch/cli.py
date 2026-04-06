@@ -434,7 +434,22 @@ def build_parser() -> argparse.ArgumentParser:
     p_export = sub.add_parser("export", help="Assemble and export the final manuscript")
     p_export.add_argument("session_id", nargs="?", default=None)
 
+    # web
+    p_web = sub.add_parser("web", help="Launch the AutoResearch Web UI")
+    p_web.add_argument("--port", type=int, default=8080, help="Port (default 8080; auto-increments if busy)")
+    p_web.add_argument("--no-browser", action="store_true", help="Do not open browser automatically")
+
     return parser
+
+
+def cmd_web(args) -> None:
+    try:
+        from autoresearch.web.server import serve
+    except ImportError:
+        print("Error: web dependencies not installed.", file=sys.stderr)
+        print("  Run: pip install -e '.[webui]'", file=sys.stderr)
+        sys.exit(1)
+    serve(port=args.port, open_browser=not args.no_browser)
 
 
 def main() -> None:
@@ -450,6 +465,7 @@ def main() -> None:
         "intake":   cmd_intake,
         "sessions": cmd_sessions,
         "export":   cmd_export,
+        "web":      cmd_web,
     }
 
     fn = dispatch.get(args.command)

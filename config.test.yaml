@@ -1,0 +1,95 @@
+project:
+  name: test
+research:
+  topic: test
+  hypothesis: ''
+  study_type: observational
+  domains:
+  - biomedicine
+  journal_target: ''
+pipeline:
+  sessions_dir: sessions
+  session_id: ''
+stage2:
+  literature:
+    databases:
+    - pubmed
+    - scholar
+    pubmed_max_results: 20
+    scholar_max_results: 10
+    date_restriction: ''
+    include_preprints: false
+    pico_search: true
+stage3:
+  analysis:
+    language: python
+    python_path: /home/hyeonjin/miniconda3/envs/claude/bin/python3
+    r_path: ''
+    timeout_sec: 120
+    python_packages:
+    - pandas
+    - numpy
+    - scipy
+    - statsmodels
+    - pingouin
+    r_packages:
+    - stats
+    - rstatix
+    - car
+stage4:
+  visualization:
+    language: python
+    dpi: 300
+    figure_width_in: 6.5
+    colorblind_safe: true
+    output_format:
+    - pdf
+    - png
+    timeout_sec: 180
+stage6:
+  writing:
+    citation_style: vancouver
+    word_limits:
+      abstract: 250
+      methods: 800
+      results: 1000
+      discussion: 1200
+      introduction: 600
+      conclusion: 300
+stage7:
+  review:
+    auto_synthesize: true
+stage9:
+  proofreader:
+    checks:
+      terminology: true
+      abbreviations: true
+      figure_references: true
+      statistics_consistency: true
+      claim_language: true
+runtime:
+  timezone: Asia/Seoul
+  approval_timeout_hours: 72
+notifications:
+  channel: console
+  target: ''
+  on_checkpoint_reached: true
+  on_stage_complete: true
+  on_error: true
+llm:
+  provider: acp
+  acp:
+    agent: claude
+    cwd: .
+export:
+  format: markdown
+  output_bundle: final_output.md
+  include:
+    manuscript: true
+    analysis_code: true
+    figure_code: true
+    figure_captions: true
+    references_bib: true
+    change_log: true
+    response_letter: true
+    proofread_report: true

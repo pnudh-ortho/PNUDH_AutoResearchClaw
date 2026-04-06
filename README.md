@@ -248,6 +248,44 @@ autoresearch/
 
 ---
 
+## Web UI
+
+A browser-based dashboard for managing the pipeline without using the CLI.
+
+```bash
+autoresearch web                  # opens http://localhost:8080
+autoresearch web --port 9090      # custom port
+autoresearch web --no-browser     # don't auto-open browser
+```
+
+**Features:**
+- Pipeline status — see all 15 checkpoints and which are cleared
+- Configuration editor — edit `config.*.yaml` files in-browser
+- Checkpoint runner — open a Claude Code panel, review the pre-filled prompt, send when ready
+- Checkpoint approval / rollback from the UI
+- Session switcher — manage multiple research sessions
+- File browser — open stage folders in Explorer or VS Code
+
+**Claude Code panel** (per-checkpoint skill runner):
+- Click the run button next to a checkpoint → panel opens with the pre-filled prompt
+- Review the prompt, then click **전송** to send
+- Click **✕** (top-right) to kill the running session and close the panel
+- The panel stays open while acpx is executing — clicking outside does nothing
+
+**Install web dependencies:**
+
+```bash
+pip install -e ".[autoresearch,webui]"
+```
+
+Requires `acpx` for the Claude Code panel:
+
+```bash
+npm install -g acpx
+```
+
+---
+
 ## Requirements
 
 - Python 3.11+
@@ -256,8 +294,10 @@ autoresearch/
 - Optional: `scholarly` (`pip install scholarly`) for Google Scholar search
 
 ```bash
-pip install -e ".[autoresearch]"           # core + CLI
-pip install -e ".[autoresearch,analysis]"  # + pandas, scipy, statsmodels
+pip install -e ".[autoresearch]"                  # core + CLI
+pip install -e ".[autoresearch,analysis]"          # + pandas, scipy, statsmodels
+pip install -e ".[autoresearch,webui]"             # + Web UI
+pip install -e ".[autoresearch,analysis,webui]"    # everything
 ```
 
 ---

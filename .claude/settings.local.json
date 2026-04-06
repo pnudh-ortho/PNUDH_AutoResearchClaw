@@ -20,7 +20,18 @@
       "Bash(sed -i 's/Stage 1-B can now be completed:/Stage 3B can now be completed:/g' .claude/skills/organize/SKILL.md)",
       "Bash(sed -i 's/from Stage 1-B \\(copy the exact value\\)/from Stage 3 \\(copy the exact value from analysis_results.txt\\)/g' .claude/skills/revision/SKILL.md)",
       "Bash(sed -i 's/Reference the CP 1A confirmed plan exactly/Reference the CP 3A confirmed statistical plan exactly/g' .claude/skills/story-writer/SKILL.md)",
-      "Bash(sed -i 's/matches exactly what was approved at CP 1A/matches exactly what was approved at CP 3A/g' .claude/skills/story-writer/SKILL.md)"
+      "Bash(sed -i 's/matches exactly what was approved at CP 1A/matches exactly what was approved at CP 3A/g' .claude/skills/story-writer/SKILL.md)",
+      "Bash(/home/hyeonjin/miniconda3/envs/claude/bin/pip install:*)",
+      "Bash(/home/hyeonjin/miniconda3/envs/claude/bin/python:*)",
+      "Bash(/home/hyeonjin/miniconda3/envs/claude/bin/uvicorn autoresearch.web.server:app --port 8080 --host 0.0.0.0)",
+      "Bash(curl -s http://localhost:8080/api/config/default)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('project:', d.get\\('project',{}\\).get\\('name','?'\\), '| stage2:', bool\\(d.get\\('stage2'\\)\\)\\)\")",
+      "Bash(curl -s http://localhost:8080/api/projects)",
+      "Bash(python3 -c \"import sys,json; print\\('projects:', json.load\\(sys.stdin\\)\\)\")",
+      "Bash(curl -s http://localhost:8080/api/pipeline/status)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('pipeline:', d.get\\('error'\\) or d.get\\('topic','?'\\)\\)\")",
+      "Bash(kill %1)",
+      "Bash(python3:*)"
     ]
   }
 }
